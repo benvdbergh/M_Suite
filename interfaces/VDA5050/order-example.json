@@ -1,0 +1,75 @@
+{
+    "headerId": 123,
+    "timestamp": "2022-09-15T14:30:00.00Z",
+    "version": "2.1.0",
+    "manufacturer": "AGV Company",
+    "serialNumber": "AGV123456",
+    "orderId": "ORD-001",
+    "orderUpdateId": 1,
+    "zoneSetId": "ZONE-001",
+    "nodes": [
+        {
+            "nodeId": "node1",
+            "sequenceId": 1,
+            "released": true,
+            "nodePosition": {
+                "x": 10.5,
+                "y": 20.3,
+                "mapId": "MAP-001"
+            },
+            "actions": []
+        }
+    ],
+    "edges": [
+        {
+            "edgeId": "edge1",
+            "sequenceId": 1,
+            "released": true,
+            "startNodeId": "node1",
+            "endNodeId": "node2",
+            "maxSpeed": 2.5,
+            "maxHeight": 1.8,
+            "minHeight": 1.2,
+            "orientation": 1.57,
+            "orientationType": "GLOBAL",
+            "direction": "straight",
+            "rotationAllowed": true,
+            "maxRotationSpeed": 0.5,
+            "length": 15.0,
+            "trajectory": {
+                "degree": 2,
+                "knotVector": [0, 0, 1, 1],
+                "controlPoints": [
+                    {
+                        "x": 10.5,
+                        "y": 20.3,
+                        "weight": 1.0
+                    },
+                    {
+                        "x": 15.0,
+                        "y": 25.0,
+                        "weight": 1.0
+                    }
+                ]
+            },
+            "actions": [
+				{
+    				"actionType": "pickUp",
+    				"actionId": "abc123",
+    				"actionDescription": "Pick up the specified item",
+    				"blockingType": "HARD",
+    				"actionParameters": [
+        				{
+        				    "key": "location",
+        				    "value": ["warehouse", "shelf1"]
+        				},
+        				{
+        				    "key": "quantity",
+        				    "value": 5
+        				}
+				    ]
+				}
+			]
+        }
+    ]
+}
