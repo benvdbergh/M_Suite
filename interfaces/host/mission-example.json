@@ -1,0 +1,49 @@
+{
+    "type": "FulfillmentMission",
+    "tasks": [
+        {
+            "taskType": "Pick",
+            "taskHostId": "1e08c9cf-c321-42f1-9b4f-5399d36c5cd9",
+            "sequence": 1,
+            "priority": 0,
+            "timeoutSeconds": 10,
+            "locationStationId": "AGV.DP02.06.0.RL0610039.6035",
+            "deviceId": "CARRIER_192168001001",
+            "angle": 270,
+            "load": {
+                "loadHostId": "1001",
+                "loadTypeId": "string",
+                "locationId": "AGV.DP02.06.0.RL0610050.4036.4",
+                "count": 0,
+                "type": "Pallet",
+                "dimensions": {
+                    "length": 0,
+                    "width": 0,
+                    "height": 0,
+                    "weightLimit": 0,
+                    "weight": 0,
+                    "unitSystem": "Metric"
+                },
+                "customMetaData": [
+                    {
+                        "key": "string",
+                        "value": "string"
+                    }
+                ]
+            },
+            "customMetaData": [
+                {
+                    "key": "string",
+                    "value": "string"
+                }
+            ],
+            "missionHostId": "9356cc77-e383-4b07-87fc-94200b24b610",
+            "loadTypeId": "string"
+        }
+    ],
+    "missionHostId": "9356cc77-e383-4b07-87fc-94200b24b610",
+    "priority": 0,
+    "expectedLoadTypeIds": [
+        "string"
+    ]
+}

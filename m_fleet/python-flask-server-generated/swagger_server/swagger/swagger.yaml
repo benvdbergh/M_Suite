@@ -1,0 +1,2612 @@
+openapi: 3.0.3
+info:
+  title: VTS API
+  description: This API Provides dynamic communication with a down stream AMR Subsystem
+    (MAS).
+  version: winpg-1.2.4
+servers:
+- url: /
+tags:
+- name: Fulfillment-Missions
+  description: This provides the REST API for managing missions
+- name: Load Units
+  description: This provides the REST API for adding/removing load unit into/from
+    the warehouse
+- name: Load-Locations
+  description: This provides the REST API for subscribing to load location events
+- name: Subscriptions
+  description: This provides the REST API for subscriptions
+- name: Tasks
+  description: This provides the REST API for managing mission tasks
+- name: Vehicles
+  description: The Vehicle Resource provide the REST api endpoint into the Vehicle
+    Monitoring component.
+paths:
+  /fulfillment-missions:
+    get:
+      tags:
+      - Fulfillment-Missions
+      summary: |
+        Gets all missions in the system
+      description: "Gets the missions from the database. If no filter is specified,\
+        \ all missions in the database are returned.\n * Note this may be large and\
+        \ should be used with caution. \nFiltering by MissionStates is recommended;\
+        \ something along the lines of Requested, Pending, Executing to get all current\
+        \ Missions in the system."
+      operationId: fulfillment_missions_get
+      parameters:
+      - name: limit
+        in: query
+        description: The number of missions that should be included on each page of
+          results.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 100
+      - name: missionstates
+        in: query
+        description: A comma separated list of states to filter the missions; if not
+          provided all missions are returned
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: The index of page that should be returned.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      responses:
+        "200":
+          description: The complete list of missions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FulfillmentMissionsQueryResponse'
+        "500":
+          description: Retrieval from database failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.fulfillment_missions_controller
+    post:
+      tags:
+      - Fulfillment-Missions
+      summary: Creates the new mission
+      description: "Creates a new mission in VTS. Once the fulfillment mission is\
+        \ created, if no sequence is designated in the tasks level, the first task\
+        \ will be executed fallows the FIFO order, and the mission will execute until\
+        \ completion. If the mission is created successfully, the new mission is returned\
+        \ to the response body."
+      operationId: fulfillment_missions_post
+      requestBody:
+        description: The new mission to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FulfillmentMission'
+        required: true
+      responses:
+        "200":
+          description: The new fulfillment mission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FulfillmentMission'
+        "400":
+          description: If the data in the new mission is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "409":
+          description: The specified mission conflicts with a mission that already
+            exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: Creation of the mission failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.fulfillment_missions_controller
+  /fulfillment-missions/subscriptions:
+    get:
+      tags:
+      - Fulfillment-Missions
+      summary: |
+        Gets all mission event subscriptions in the system
+      description: Gets all mission event subscriptions from the database.
+      operationId: fulfillment_missions_subscriptions_get
+      responses:
+        "200":
+          description: The list of mission event subscriptions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Subscription'
+                x-content-type: application/json
+        "500":
+          description: Retrieval from database failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.fulfillment_missions_controller
+    post:
+      tags:
+      - Fulfillment-Missions
+      summary: Subscribes to mission events
+      description: "Subscribes to mission events that will be published. Mission events\
+        \ include Task Updates including state changes, Mission State Changes. Upon\
+        \ successful creation of the subscription, a subscription object with the\
+        \ ID is returned in the response body."
+      operationId: fulfillment_missions_subscriptions_post
+      requestBody:
+        description: The new subscription to create; only the callback url needs to
+          be specified
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+        required: true
+      responses:
+        "200":
+          description: The Subscription
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        "400":
+          description: The specified subscription was invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "409":
+          description: The specified subscription already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: Subscribing to mission events failed internally
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.fulfillment_missions_controller
+  /fulfillment-missions/subscriptions/{id}:
+    delete:
+      tags:
+      - Fulfillment-Missions
+      summary: Unsubscribes to mission events
+      description: "Unsubscribes from the specified subscription from VTS to stop\
+        \ receiving mission events. Upon successfully deleting the subscription, the\
+        \ deleted subscription object is returned in the response body."
+      operationId: fulfillment_missions_subscriptions_id_delete
+      parameters:
+      - name: id
+        in: path
+        description: The id of the subscription to cancel
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: 451662ef-124c-4df4-a85f-8347e9e50302
+      responses:
+        "200":
+          description: The Subscription
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        "400":
+          description: The specified subscription was invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "409":
+          description: The specified subscription already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: Subscribing to mission events failed internally
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.fulfillment_missions_controller
+  /fulfillment-missions/{id}:
+    get:
+      tags:
+      - Fulfillment-Missions
+      summary: Gets the specified missions
+      description: Retrieves the mission specified by the mission Id or mission HostId
+        or returns not found
+      operationId: fulfillment_missions_id_get
+      parameters:
+      - name: id
+        in: path
+        description: The VTS ID or Host ID of the mission to get
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: 39655fd9-0132-476c-a023-5f84b509dec9
+      responses:
+        "200":
+          description: The specified fulfillment mission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FulfillmentMission'
+        "404":
+          description: The specified mission was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: Retrieval from database failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.fulfillment_missions_controller
+  /fulfillment-missions/{id}/cancel:
+    put:
+      tags:
+      - Fulfillment-Missions
+      summary: Cancels the specified mission
+      description: |-
+        Cancels the specified mission. If a task is executing, the mission state will change to CancelPending until the AMR subsystem reports that the executing task has stopped/been completed. Once all tasks are stopped, the state is changed to Cancelled, and the mission is closed. Cancelled missions cannot be restarted.
+        Upon successful reception of the cancellation request, the mission with the updated state and tasks is returned in the response body.
+      operationId: fulfillment_missions_id_cancel_put
+      parameters:
+      - name: id
+        in: path
+        description: The VTS ID or Host ID of the mission to cancel; this can be the
+          task Id or the host Id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: 97c80f5f-e173-4ac4-acdc-75bcdde8817b
+      - name: force
+        in: query
+        description: "The force flag will force the cancellation of the mission regardless\
+          \ of its state. Only if the mission is already completed or does not exist\
+          \ will the cancel be rejected. If the force flag is set, no attempt to drop\
+          \ the load or cancel the current task is made."
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      responses:
+        "200":
+          description: The cancelled mission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FulfillmentMission'
+        "404":
+          description: The specified mission is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "409":
+          description: The specified mission cannot be cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: Cancelling the mission failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.fulfillment_missions_controller
+  /fulfillment-missions/{missionId}/tasks:
+    get:
+      tags:
+      - Tasks
+      summary: Gets the complete set of tasks for a specified mission.
+      description: Returns the array of tasks from the specified mission in the response
+        body.
+      operationId: fulfillment_missions_mission_id_tasks_get
+      parameters:
+      - name: missionId
+        in: path
+        description: The VTS ID or Host ID of the mission to get the tasks
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: 39655fd9-0132-476c-a023-5f84b509dec9
+      responses:
+        "200":
+          description: The collection of tasks from the mission
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+                x-content-type: application/json
+        "404":
+          description: If the mission is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: If getting the tasks fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.tasks_controller
+    post:
+      tags:
+      - Tasks
+      summary: Adds an array of tasks to the current set of tasks.
+      description: |-
+        Adds the task(s) to the given specified mission. Tasks are re-sequenced based on the new sequence valuesspecified in the added tasks. Tasks cannot be inserted before or at the sequence number that is currently executing,even if it is paused.
+        The updated mission with the new added task(s) and updated tasks is returned in the response body if successful.
+      operationId: fulfillment_missions_mission_id_tasks_post
+      parameters:
+      - name: missionId
+        in: path
+        description: The VTS ID or Host ID of the mission to add the tasks to
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: 97c80f5f-e173-4ac4-acdc-75bcdde8817b
+      requestBody:
+        description: The collection of tasks to add to the mission
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Task'
+        required: true
+      responses:
+        "200":
+          description: The specified task
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FulfillmentMission'
+        "400":
+          description: If the tasks are improperly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "404":
+          description: If the mission is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: If adding the tasks fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.tasks_controller
+  /fulfillment-missions/{missionId}/tasks/{taskIds}:
+    delete:
+      tags:
+      - Tasks
+      summary: Deletes the specified task(s) from the mission.
+      description: |-
+        Deletes the specified tasks from the mission.
+        * Note: - Some tasks are not eligible for deletion, depending on their current status. For example, if a task is already in Executing or Finished state, it cannot be removed from the system. However, tasks that are still in the Enqueued state can be deleted.
+        - The mission will execute the remaining tasks in accordance with the remaining sequence values.
+        - The updated mission with the deleted tasks removed is returned in the response body if successful.
+      operationId: fulfillment_missions_mission_id_tasks_task_ids_delete
+      parameters:
+      - name: missionId
+        in: path
+        description: The VTS ID or Host ID of the mission that contains the task to
+          delete
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: 39655fd9-0132-476c-a023-5f84b509dec9
+      - name: taskIds
+        in: path
+        description: The comma separated string of VTS IDs or Host IDs of the tasks
+          to delete
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: 4625b53b-24ff-4544-b808-c88f32575691
+      responses:
+        "200":
+          description: The modified mission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FulfillmentMission'
+        "400":
+          description: If the list of tasks is missing or incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "403":
+          description: If the specified task cannot be deleted (e.g. its in progress
+            or completed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "404":
+          description: If the mission or the task is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: If deleting the task fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.tasks_controller
+  /fulfillment-missions/{missionId}/tasks/{taskId}:
+    get:
+      tags:
+      - Tasks
+      summary: Gets the specified task
+      description: "Returns the task by id from the specified missionId if found,"
+      operationId: fulfillment_missions_mission_id_tasks_task_id_get
+      parameters:
+      - name: missionId
+        in: path
+        description: The VTS ID or Host ID of the mission to get the task from
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: 97c80f5f-e173-4ac4-acdc-75bcdde8817b
+      - name: taskId
+        in: path
+        description: The VTS ID or Host ID of the task to get
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: a60dda68-4681-4999-801b-79ee5ddbc444
+      responses:
+        "200":
+          description: The specified task
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        "404":
+          description: If the mission or the task is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: If getting the tasks fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.tasks_controller
+    put:
+      tags:
+      - Tasks
+      summary: Modifies a specified task within a mission.
+      description: |-
+        Modifies the specified task by merging in the given task with the existing task. Only writable fields can be updated. Tasks completed or executing cannot be modified. Modifying the sequence value of a task will re-sequence the remaining tasks accordingly.
+         The updated mission with the updated task and updated existing tasks is returned in the response body if successful
+      operationId: fulfillment_missions_mission_id_tasks_task_id_put
+      parameters:
+      - name: missionId
+        in: path
+        description: The VTS ID or Host ID of the mission that contains the task to
+          modify
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: 39655fd9-0132-476c-a023-5f84b509dec9
+      - name: taskId
+        in: path
+        description: The VTS ID or Host ID of the task to modify
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: a60dda68-4681-4999-801b-79ee5ddbc444
+      requestBody:
+        description: The modified task
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      responses:
+        "200":
+          description: The modified mission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FulfillmentMission'
+        "400":
+          description: If the modified task is improperly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "403":
+          description: If the specified task cannot be modified (e.g. its in progress
+            or completed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "404":
+          description: If the mission or the task is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: If modifying the task fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.tasks_controller
+  /fulfillment-missions/{missionId}/tasks/{taskId}/resume:
+    put:
+      tags:
+      - Tasks
+      summary: Request to resume a task
+      description: |-
+        Resumes the specified suspended task. Tasks can be suspended for a few reasons: Suspended (stop task), Wait indefinitely (see Task Wait). The task will resume executing or start once it is ready to execute.
+         The updated mission with the resumed task is returned in the response body if successful.
+      operationId: fulfillment_missions_mission_id_tasks_task_id_resume_put
+      parameters:
+      - name: missionId
+        in: path
+        description: The VTS ID or Host ID of the mission to get the task from
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: 39655fd9-0132-476c-a023-5f84b509dec9
+      - name: taskId
+        in: path
+        description: The VTS ID or Host ID of the task to resume
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: a60dda68-4681-4999-801b-79ee5ddbc444
+      requestBody:
+        description: The reason to resume the task
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reason'
+        required: true
+      responses:
+        "200":
+          description: The modified mission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FulfillmentMission'
+        "403":
+          description: If the specified task cannot be stopped (e.g. its waiting or
+            completed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "404":
+          description: If the mission or the task is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: If stopping the task fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.tasks_controller
+  /fulfillment-missions/{missionId}/tasks/{taskId}/stop:
+    put:
+      tags:
+      - Tasks
+      summary: Request to stop a task.
+      description: |-
+        Stops the specified task from executing. The task will suspend if executing or not start if it's not in progress. The task will remain suspended indefinitely until the mission is canceled or the task is resumed.
+        The updated mission with the suspended task is returned in the response body if successful.
+      operationId: fulfillment_missions_mission_id_tasks_task_id_stop_put
+      parameters:
+      - name: missionId
+        in: path
+        description: The VTS ID or Host ID of the mission to get the task from
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: 39655fd9-0132-476c-a023-5f84b509dec9
+      - name: taskId
+        in: path
+        description: The VTS ID or Host ID of the task to stop
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: a60dda68-4681-4999-801b-79ee5ddbc444
+      requestBody:
+        description: The reason to stop the task
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reason'
+      responses:
+        "200":
+          description: The modified mission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FulfillmentMission'
+        "403":
+          description: If the specified task cannot be stopped (e.g. its waiting or
+            completed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "404":
+          description: If the mission or the task is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: If stopping the task fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.tasks_controller
+  /fulfillment-missions/{missionOrTaskId}/syncfromrcs:
+    post:
+      tags:
+      - Fulfillment-Missions
+      summary: Updates the status of current task in the mission with latest job state
+        from RCS
+      description: Updates the status of current task in the mission with latest job
+        state from RCS. This API can be used to resume missions 'stuck' because of
+        events not reaching VTS from RCS The latest state of the mission is returned
+        in the response body.
+      operationId: fulfillment_missions_mission_or_task_id_syncfromrcs_post
+      parameters:
+      - name: missionOrTaskId
+        in: path
+        description: The mission Id or task Id to sync with RCS
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: 97c80f5f-e173-4ac4-acdc-75bcdde8817b
+      responses:
+        "200":
+          description: The latest state of the mission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FulfillmentMission'
+        "404":
+          description: If the mission is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: Any unexpected server during mission synchronization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.fulfillment_missions_controller
+  /load-locations/subscriptions:
+    get:
+      tags:
+      - Load-Locations
+      summary: |
+        Gets all load location event subscriptions in the system
+      description: Gets all load location event subscriptions from the database.
+      operationId: load_locations_subscriptions_get
+      responses:
+        "200":
+          description: The list of load location event subscriptions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Subscription'
+                x-content-type: application/json
+        "500":
+          description: Retrieval from database failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.load_locations_controller
+    post:
+      tags:
+      - Load-Locations
+      summary: Subscribes to load location events
+      description: "Subscribes to load location events that will be published. Load\
+        \ location events are sent when load is moved around the warehouse by the\
+        \ AMR subsystem. Upon successful creation of the subscription, a subscription\
+        \ object with the ID is returned in the response body."
+      operationId: load_locations_subscriptions_post
+      requestBody:
+        description: The new subscription to create; only the callback url needs to
+          be specified
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+        required: true
+      responses:
+        "200":
+          description: The Subscription
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        "400":
+          description: The specified subscription was invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "409":
+          description: The specified subscription already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: Subscribing to load location events failed internally
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.load_locations_controller
+  /load-locations/subscriptions/{id}:
+    delete:
+      tags:
+      - Load-Locations
+      summary: Unsubscribes to load location events
+      description: "Unsubscribes from the specified subscription from VTS to stop\
+        \ receiving load location events. Upon successfully deleting the subscription,\
+        \ the deleted subscription object is returned in the response body."
+      operationId: load_locations_subscriptions_id_delete
+      parameters:
+      - name: id
+        in: path
+        description: The id of the subscription to cancel
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: 451662ef-124c-4df4-a85f-8347e9e50302
+      responses:
+        "200":
+          description: The Subscription
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        "400":
+          description: The specified subscription was invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "409":
+          description: The specified subscription already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: Unsubscribing to load location events failed internally
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.load_locations_controller
+  /loads:
+    get:
+      tags:
+      - Load Units
+      summary: Gets load information from AMR subsystem for the specified type and
+        load host ids
+      description: "This API is typically used to retrieve current location of the\
+        \ load. \nIf load does not exist for a given load host id, no record is returned\
+        \ for that load host id."
+      operationId: loads_get
+      parameters:
+      - name: loadHostIds
+        in: query
+        description: A comma separated list of load host Ids to filter the loads;
+          At least one load host id must be provided
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: type
+        in: query
+        description: The type of load to be retrieved
+        required: true
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/LoadTypes'
+      responses:
+        "200":
+          description: The list of load
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Load'
+                x-content-type: application/json
+        "500":
+          description: Retrieval of loads from AMR subsystem failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.load_units_controller
+    post:
+      tags:
+      - Load Units
+      summary: Adds the load unit into the warehouse
+      description: Adds the load unit into the warehouse to carry out the fulfillment
+        order.
+      operationId: loads_post
+      requestBody:
+        description: The new load unit to add to the warehouse
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Load'
+        required: true
+      responses:
+        "200":
+          description: The new load unit added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Load'
+        "400":
+          description: If the data in the load unit is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "409":
+          description: The specified load unit conflicts with a load unit that already
+            exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: Addition of the load unit failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.load_units_controller
+    delete:
+      tags:
+      - Load Units
+      summary: Removes the load unit from the warehouse
+      description: Removes the load unit from the warehouse
+      operationId: loads_delete
+      requestBody:
+        description: The load unit to be removed from to the warehouse
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Load'
+        required: true
+      responses:
+        "200":
+          description: The removed load unit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Load'
+        "400":
+          description: If the data in the load unit is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "409":
+          description: The specified load unit doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: Removal of the load unit failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.load_units_controller
+  /subscriptions:
+    get:
+      tags:
+      - Subscriptions
+      summary: |
+        Gets all subscriptions in the system
+      description: Gets the subscriptions from the database.
+      operationId: subscriptions_get
+      responses:
+        "200":
+          description: The complete list of subscriptions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Subscription'
+                x-content-type: application/json
+        "500":
+          description: Retrieval from database failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.subscriptions_controller
+  /vehicles:
+    get:
+      tags:
+      - Vehicles
+      summary: "Gets vehicles status data per the query parameter id's, if not parameter\
+        \ is specified the it will return all available vehicles"
+      description: "Gets the vehicle status info for the specified vehicles. One can\
+        \ request the vehicles by warehouse, by zone, or by specific vehicle Ids"
+      operationId: vehicles_get
+      parameters:
+      - name: vehicleIds
+        in: query
+        description: The comma-separated list of vehicle id's to get status data from.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+        example: "CARRIER_192168001050,CARRIER_192168001049,CARRIER_192168001002"
+      responses:
+        "200":
+          description: Returns ok with a collection of vehicles status data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+                x-content-type: application/json
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "404":
+          description: The specified get vehicles command cannot be found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: Get vehicles failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.vehicles_controller
+  /vehicles/resume:
+    put:
+      tags:
+      - Vehicles
+      summary: Resume the vehicles in Whole warehouse or in a particular area. See
+        request body
+      description: "Commands the AMR subsystem to resume suspended areas, vehicles,\
+        \ or the whole warehouse that was suspended by a Stop Vehicles request. If\
+        \ allVehicles is set to true then all vehicles will be resumed. For resuming\
+        \ vehicles in a particular area we need to make allVehicles as false"
+      operationId: vehicles_resume_put
+      requestBody:
+        description: The vehicles to resume
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleStop'
+        required: true
+      responses:
+        "200":
+          description: "Returns ok with code:SUCCESS, message:success, success:true"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+                x-content-type: application/json
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "404":
+          description: The specified resume command cannot be found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: Resume vehicles failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.vehicles_controller
+  /vehicles/stop:
+    put:
+      tags:
+      - Vehicles
+      summary: Stop the vehicles in whole warehouse or in the specified area. See
+        request body
+      description: "\t\nCommands the AMR subsystem to suspend all the vehicles specified\
+        \ in the body of the request. If allVehicles is set to true, then all vehicles\
+        \ will be stopped. For stopping vehicles in a particular area, we need to\
+        \ make allVehicles false. Currently, this only supports Vehicle Ids, Areas,\
+        \ or the whole warehouse."
+      operationId: vehicles_stop_put
+      requestBody:
+        description: The vehicles to stop
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleStop'
+        required: true
+      responses:
+        "200":
+          description: "Returns ok with code:SUCCESS, message:success, success:true"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+                x-content-type: application/json
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "404":
+          description: The specified stopped command cannot be found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: Stopping vehicles failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.vehicles_controller
+  /vehicles/subscriptions:
+    get:
+      tags:
+      - Vehicles
+      summary: |
+        Gets all vehicle event subscriptions in the system
+      description: Gets all vehicle event subscriptions from the database.
+      operationId: vehicles_subscriptions_get
+      responses:
+        "200":
+          description: The list of vehicle event subscriptions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Subscription'
+                x-content-type: application/json
+        "500":
+          description: Retrieval from database failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.vehicles_controller
+    post:
+      tags:
+      - Vehicles
+      summary: Subscribes to vehicle events
+      description: "Subscribes to vehicle events that will be published. Vehicle events\
+        \ include updates about vehicles that are allocated in active VTS missions.\
+        \ Upon successful creation of the subscription, a subscription object with\
+        \ the ID is returned in the response body."
+      operationId: vehicles_subscriptions_post
+      requestBody:
+        description: The new subscription to create; only the callback url needs to
+          be specified
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+        required: true
+      responses:
+        "200":
+          description: The Subscription
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        "400":
+          description: The specified subscription was invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "409":
+          description: The specified subscription already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: Subscribing to mission events failed internally
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.vehicles_controller
+  /vehicles/subscriptions/{id}:
+    delete:
+      tags:
+      - Vehicles
+      summary: Unsubscribes to Vehicle events
+      description: "Unsubscribes from the specified subscription from VTS to stop\
+        \ receiving messages. Upon successful deletion of the subscription, the deleted\
+        \ subscription object is returned in the response body."
+      operationId: vehicles_subscriptions_id_delete
+      parameters:
+      - name: id
+        in: path
+        description: The id of the subscription to cancel
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: 5655cbaf-cf0c-45e3-b77a-c8653d01b2eb
+      responses:
+        "200":
+          description: Returns ok with the deleted subscription data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+        "400":
+          description: The specified subscription was invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "409":
+          description: The specified subscription already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+        "500":
+          description: Subscribing to mission events failed internally
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.vehicles_controller
+components:
+  schemas:
+    AMRType:
+      type: string
+      description: "<pre>The types of robots that can be requested and used<br><br>Masted\
+        \ \t\t- The Masted <br><br>Sortation \t- The Sortation<br><br>TableTop \t\
+        - The TableTop<br><br></pre>"
+      enum:
+      - Masted
+      - Sortation
+      - TableTop
+    Dimensions:
+      type: object
+      properties:
+        length:
+          type: number
+          description: Defines the length of the object in the length units of the
+            specified units system
+          format: double
+        width:
+          type: number
+          description: Defines the width of the object in the length units of the
+            specified units system
+          format: double
+        height:
+          type: number
+          description: Defines the height of the object in the length units of the
+            specified units system
+          format: double
+        weightLimit:
+          type: number
+          description: Defines the weight limit of the load in the weight units of
+            the specified units system
+          format: double
+        weight:
+          type: number
+          description: Defines the weight of the load in the weight units of the specified
+            units system
+          format: double
+        unitSystem:
+          type: string
+          description: The unit system used as the units for all the measurements
+            in the object
+          allOf:
+          - $ref: '#/components/schemas/UnitSystems'
+      description: Defines a structure to store the dimensions of an object
+    ErrorCategory:
+      type: string
+      description: <pre>Defines the categories of errors VTS can report<br><br>AUTHENTICATION  -
+        Errors related to authentication or authorization<br><br>RETRYABLE  - Transient
+        errors that may be resolved by retrying the request after a short pause<br><br>VALIDATION  -
+        Errors related to invalid input<br><br>VENDOR_SPECIFIC  - Vendor Specific
+        errors that requires human intervention<br><br>EXTERNAL_DATA  - Errors related
+        to data sent from an external source<br><br>INTERNAL_EVENT  - Errors encountered
+        internally in the system.</pre>
+      enum:
+      - AUTHENTICATION
+      - RETRYABLE
+      - VALIDATION
+      - VENDOR_SPECIFIC
+      - EXTERNAL_DATA
+      - INTERNAL_EVENT
+    ErrorDetail:
+      type: object
+      properties:
+        errorMessage:
+          type: string
+          description: The string that describes the error
+        errorCategory:
+          type: string
+          description: The string that describes the category of this error
+          allOf:
+          - $ref: '#/components/schemas/ErrorCategory'
+        meta:
+          type: object
+          description: The metadata associated with this error
+          allOf:
+          - $ref: '#/components/schemas/ErrorDetailMetadata'
+        errorLabel:
+          type: string
+          description: The string that describes the error. This field is deprecated.
+            Use "errorMessage" instead
+          deprecated: true
+        errorCode:
+          type: string
+          description: The code for this error. This field is deprecated. Use "meta"
+            instead
+          deprecated: true
+      description: Defines an error in the system
+      example:
+        errorCategory: ""
+        meta: ""
+        errorMessage: errorMessage
+        errorCode: errorCode
+        errorLabel: errorLabel
+    ErrorDetailMetadata:
+      type: object
+      properties:
+        vendorErrorCode:
+          type: string
+          description: The error code specific to vendor
+        vendor:
+          type: string
+          description: The string that describes the vendor
+      description: Defines the metadata associated with an error in the system
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: The response body for HTTP errors reported back to the client
+      description: The response body for HTTP errors reported back to the client
+    FulfillmentMission:
+      required:
+      - tasks
+      - type
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type of mission being executed
+          example: FulfillmentMission
+          allOf:
+          - $ref: '#/components/schemas/MissionTypes'
+        tasks:
+          type: array
+          description: The collection of tasks for this mission to complete; there
+            must be at least one task to define a mission
+          items:
+            $ref: '#/components/schemas/Task'
+        missionHostId:
+          type: string
+          description: "The client-side ID is associated with this mission. This can\
+            \ be used to reference the mission when sending requests on the mission.\
+            \ If this is not set, it will be set to the id on mission creation. This\
+            \ makes it easier for the client to manage the mission from their own\
+            \ software."
+          example: 9356cc77-e383-4b07-87fc-94200b24b610
+        priority:
+          type: integer
+          description: "Defines the priority for the mission, if the AMR subsystem\
+            \ supports priorities mission will be sent to the AMR subsystem. Value\
+            \ should be in range 0-2147483647 where 0 is the highest priority and\
+            \ 2147483647 is the lowest priority. This range is also configurable in\
+            \ the application."
+          format: int64
+          example: 0
+        expectedLoadTypeIds:
+          type: array
+          description: The expected load type Ids used in the mission; Not Used
+          items:
+            type: string
+        missionId:
+          type: string
+          description: The ID for the fulfillment mission set by VTS
+          readOnly: true
+          example: 97c80f5f-e173-4ac4-acdc-75bcdde8817b
+        status:
+          type: string
+          description: The current state or status of the mission
+          readOnly: true
+          example: Requested
+          allOf:
+          - $ref: '#/components/schemas/MissionStates'
+        stateMessage:
+          type: string
+          description: Information describing the current state of the mission
+          readOnly: true
+        errors:
+          type: array
+          description: Stores any errors reported against the mission
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+        startTime:
+          type: string
+          description: Stores the time for mission started - requested from the client
+          readOnly: true
+          example: 2023-02-02T09:03:59.234Z
+        endTime:
+          type: string
+          description: Stores the time for mission ended
+          readOnly: true
+          example: 2023-02-02T09:19:32.524Z
+      description: The definition of a fulfillment mission to be requested
+      example:
+        missionId: 97c80f5f-e173-4ac4-acdc-75bcdde8817b
+        expectedLoadTypeIds:
+        - expectedLoadTypeIds
+        - expectedLoadTypeIds
+        stateMessage: stateMessage
+        startTime: 2023-02-02T09:03:59.234Z
+        endTime: 2023-02-02T09:19:32.524Z
+        type: FulfillmentMission
+        priority: 0
+        tasks:
+        - deviceType: deviceType
+          missionId: 39655fd9-0132-476c-a023-5f84b509dec9
+          loadTypeId: loadTypeId
+          stateMessage: stateMessage
+          customMetaData:
+          - value: value
+            key: key
+          - value: value
+            key: key
+          priority: 0
+          deviceId: CARRIER_192168001001
+          taskHostId: 1e08c9cf-c321-42f1-9b4f-5399d36c5cd9
+          sequence: 1
+          taskType: Pick
+          subState: Retrieving
+          load: ""
+          locationStationId: AGV.DP02.06.0.RL0610039.6035
+          timeoutSeconds: 10
+          angle: 270
+          startTime: 2023-02-02T06:14:35.417Z
+          endTime: 2023-02-02T06:14:14.644Z
+          taskId: 25a70a33-9271-426c-bb8e-674fdef13e59
+          missionHostId: 9356cc77-e383-4b07-87fc-94200b24b610
+          errors:
+          - errorCategory: ""
+            meta: ""
+            errorMessage: errorMessage
+            errorCode: errorCode
+            errorLabel: errorLabel
+          - errorCategory: ""
+            meta: ""
+            errorMessage: errorMessage
+            errorCode: errorCode
+            errorLabel: errorLabel
+          status: Executing
+        - deviceType: deviceType
+          missionId: 39655fd9-0132-476c-a023-5f84b509dec9
+          loadTypeId: loadTypeId
+          stateMessage: stateMessage
+          customMetaData:
+          - value: value
+            key: key
+          - value: value
+            key: key
+          priority: 0
+          deviceId: CARRIER_192168001001
+          taskHostId: 1e08c9cf-c321-42f1-9b4f-5399d36c5cd9
+          sequence: 1
+          taskType: Pick
+          subState: Retrieving
+          load: ""
+          locationStationId: AGV.DP02.06.0.RL0610039.6035
+          timeoutSeconds: 10
+          angle: 270
+          startTime: 2023-02-02T06:14:35.417Z
+          endTime: 2023-02-02T06:14:14.644Z
+          taskId: 25a70a33-9271-426c-bb8e-674fdef13e59
+          missionHostId: 9356cc77-e383-4b07-87fc-94200b24b610
+          errors:
+          - errorCategory: ""
+            meta: ""
+            errorMessage: errorMessage
+            errorCode: errorCode
+            errorLabel: errorLabel
+          - errorCategory: ""
+            meta: ""
+            errorMessage: errorMessage
+            errorCode: errorCode
+            errorLabel: errorLabel
+          status: Executing
+        missionHostId: 9356cc77-e383-4b07-87fc-94200b24b610
+        errors:
+        - null
+        - null
+        status: Requested
+    FulfillmentMissionsQueryResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: int64
+        page:
+          type: integer
+          format: int32
+        count:
+          type: integer
+          format: int32
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/FulfillmentMission'
+      description: The response body for Get Missions API reported back to the client
+      example:
+        total: 0
+        records:
+        - missionId: 97c80f5f-e173-4ac4-acdc-75bcdde8817b
+          expectedLoadTypeIds:
+          - expectedLoadTypeIds
+          - expectedLoadTypeIds
+          stateMessage: stateMessage
+          startTime: 2023-02-02T09:03:59.234Z
+          endTime: 2023-02-02T09:19:32.524Z
+          type: FulfillmentMission
+          priority: 0
+          tasks:
+          - deviceType: deviceType
+            missionId: 39655fd9-0132-476c-a023-5f84b509dec9
+            loadTypeId: loadTypeId
+            stateMessage: stateMessage
+            customMetaData:
+            - value: value
+              key: key
+            - value: value
+              key: key
+            priority: 0
+            deviceId: CARRIER_192168001001
+            taskHostId: 1e08c9cf-c321-42f1-9b4f-5399d36c5cd9
+            sequence: 1
+            taskType: Pick
+            subState: Retrieving
+            load: ""
+            locationStationId: AGV.DP02.06.0.RL0610039.6035
+            timeoutSeconds: 10
+            angle: 270
+            startTime: 2023-02-02T06:14:35.417Z
+            endTime: 2023-02-02T06:14:14.644Z
+            taskId: 25a70a33-9271-426c-bb8e-674fdef13e59
+            missionHostId: 9356cc77-e383-4b07-87fc-94200b24b610
+            errors:
+            - errorCategory: ""
+              meta: ""
+              errorMessage: errorMessage
+              errorCode: errorCode
+              errorLabel: errorLabel
+            - errorCategory: ""
+              meta: ""
+              errorMessage: errorMessage
+              errorCode: errorCode
+              errorLabel: errorLabel
+            status: Executing
+          - deviceType: deviceType
+            missionId: 39655fd9-0132-476c-a023-5f84b509dec9
+            loadTypeId: loadTypeId
+            stateMessage: stateMessage
+            customMetaData:
+            - value: value
+              key: key
+            - value: value
+              key: key
+            priority: 0
+            deviceId: CARRIER_192168001001
+            taskHostId: 1e08c9cf-c321-42f1-9b4f-5399d36c5cd9
+            sequence: 1
+            taskType: Pick
+            subState: Retrieving
+            load: ""
+            locationStationId: AGV.DP02.06.0.RL0610039.6035
+            timeoutSeconds: 10
+            angle: 270
+            startTime: 2023-02-02T06:14:35.417Z
+            endTime: 2023-02-02T06:14:14.644Z
+            taskId: 25a70a33-9271-426c-bb8e-674fdef13e59
+            missionHostId: 9356cc77-e383-4b07-87fc-94200b24b610
+            errors:
+            - errorCategory: ""
+              meta: ""
+              errorMessage: errorMessage
+              errorCode: errorCode
+              errorLabel: errorLabel
+            - errorCategory: ""
+              meta: ""
+              errorMessage: errorMessage
+              errorCode: errorCode
+              errorLabel: errorLabel
+            status: Executing
+          missionHostId: 9356cc77-e383-4b07-87fc-94200b24b610
+          errors:
+          - null
+          - null
+          status: Requested
+        - missionId: 97c80f5f-e173-4ac4-acdc-75bcdde8817b
+          expectedLoadTypeIds:
+          - expectedLoadTypeIds
+          - expectedLoadTypeIds
+          stateMessage: stateMessage
+          startTime: 2023-02-02T09:03:59.234Z
+          endTime: 2023-02-02T09:19:32.524Z
+          type: FulfillmentMission
+          priority: 0
+          tasks:
+          - deviceType: deviceType
+            missionId: 39655fd9-0132-476c-a023-5f84b509dec9
+            loadTypeId: loadTypeId
+            stateMessage: stateMessage
+            customMetaData:
+            - value: value
+              key: key
+            - value: value
+              key: key
+            priority: 0
+            deviceId: CARRIER_192168001001
+            taskHostId: 1e08c9cf-c321-42f1-9b4f-5399d36c5cd9
+            sequence: 1
+            taskType: Pick
+            subState: Retrieving
+            load: ""
+            locationStationId: AGV.DP02.06.0.RL0610039.6035
+            timeoutSeconds: 10
+            angle: 270
+            startTime: 2023-02-02T06:14:35.417Z
+            endTime: 2023-02-02T06:14:14.644Z
+            taskId: 25a70a33-9271-426c-bb8e-674fdef13e59
+            missionHostId: 9356cc77-e383-4b07-87fc-94200b24b610
+            errors:
+            - errorCategory: ""
+              meta: ""
+              errorMessage: errorMessage
+              errorCode: errorCode
+              errorLabel: errorLabel
+            - errorCategory: ""
+              meta: ""
+              errorMessage: errorMessage
+              errorCode: errorCode
+              errorLabel: errorLabel
+            status: Executing
+          - deviceType: deviceType
+            missionId: 39655fd9-0132-476c-a023-5f84b509dec9
+            loadTypeId: loadTypeId
+            stateMessage: stateMessage
+            customMetaData:
+            - value: value
+              key: key
+            - value: value
+              key: key
+            priority: 0
+            deviceId: CARRIER_192168001001
+            taskHostId: 1e08c9cf-c321-42f1-9b4f-5399d36c5cd9
+            sequence: 1
+            taskType: Pick
+            subState: Retrieving
+            load: ""
+            locationStationId: AGV.DP02.06.0.RL0610039.6035
+            timeoutSeconds: 10
+            angle: 270
+            startTime: 2023-02-02T06:14:35.417Z
+            endTime: 2023-02-02T06:14:14.644Z
+            taskId: 25a70a33-9271-426c-bb8e-674fdef13e59
+            missionHostId: 9356cc77-e383-4b07-87fc-94200b24b610
+            errors:
+            - errorCategory: ""
+              meta: ""
+              errorMessage: errorMessage
+              errorCode: errorCode
+              errorLabel: errorLabel
+            - errorCategory: ""
+              meta: ""
+              errorMessage: errorMessage
+              errorCode: errorCode
+              errorLabel: errorLabel
+            status: Executing
+          missionHostId: 9356cc77-e383-4b07-87fc-94200b24b610
+          errors:
+          - null
+          - null
+          status: Requested
+        count: 1
+        page: 6
+    HttpErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: The statusCode of HTTP errors reported back to the client
+          format: int32
+          readOnly: true
+          example: 500
+        detail:
+          type: string
+          description: The detail of HTTP errors reported back to the client
+          readOnly: true
+          example: Internal Server Error
+        instance:
+          type: string
+          description: The URI response reported back to the client
+          readOnly: true
+          example: /fulfillment-missions
+      description: The response body for HTTP errors reported back to the client
+    Load:
+      type: object
+      properties:
+        loadHostId:
+          type: string
+          description: Client identifier for this load. Mandatory for Pick and Drop
+            task types.
+          example: "1001"
+        loadTypeId:
+          type: string
+          description: The ID of the type of load
+        locationId:
+          type: string
+          description: The ID of the location of the load
+          example: AGV.DP02.06.0.RL0610050.4036.4
+        count:
+          type: integer
+          description: The count of object within the load
+          format: int32
+          example: 0
+        type:
+          type: string
+          description: The type of load
+          example: Pallet
+          allOf:
+          - $ref: '#/components/schemas/LoadTypes'
+        dimensions:
+          type: object
+          description: The dimensions of the load
+          allOf:
+          - $ref: '#/components/schemas/Dimensions'
+        customMetaData:
+          type: array
+          description: A collection of custom meta data to store with the load
+          items:
+            $ref: '#/components/schemas/MetaData'
+        loadId:
+          type: string
+          description: The VTS ID of the load
+          readOnly: true
+          example: 9c3b1830-513c-33b8-bc4b-76635d32e692
+        status:
+          type: string
+          description: The status of the load
+          readOnly: true
+          example: Enroute
+          allOf:
+          - $ref: '#/components/schemas/LoadStates'
+      description: Defines the load that can be moved within the warehouse
+      example:
+        loadHostId: "1001"
+        loadId: 9c3b1830-513c-33b8-bc4b-76635d32e692
+        loadTypeId: loadTypeId
+        locationId: AGV.DP02.06.0.RL0610050.4036.4
+        count: 0
+        customMetaData:
+        - value: value
+          key: key
+        - value: value
+          key: key
+        type: Pallet
+        dimensions: ""
+        status: Enroute
+    LoadLocationEvent:
+      type: object
+      properties:
+        eventType:
+          type: string
+          description: The type of this event
+          allOf:
+          - $ref: '#/components/schemas/MissionEventTypes'
+        created:
+          type: string
+          description: "When this event was created. If the event originated in the\
+            \ AMR subsystem, the event creation time published by the AMR subsystem\
+            \ will be set, else the event creation time in VTS will be set"
+        load:
+          type: object
+          description: The load object with new location to which load has relocated
+          allOf:
+          - $ref: '#/components/schemas/Load'
+      description: The Event Object that is published for a Load Location Change event
+    LoadStates:
+      type: string
+      description: Defines the states of a load in the warehouse
+      enum:
+      - Stored
+      - Enroute
+      - Discarded
+    LoadTypes:
+      type: string
+      description: "<pre>The types of loads supported by the VTS system<br><br>Pallet\
+        \ \t- The Pallet<br><br>Tote\t\t- The Tote<br><br>Case\t\t- The Case<br><br>Rack\t\
+        \t- The Rack<br><br></pre>"
+      enum:
+      - Pallet
+      - Tote
+      - Case
+      - Rack
+    Location:
+      type: object
+      properties:
+        id:
+          type: string
+        warehouseId:
+          type: string
+        zoneId:
+          type: string
+        areaCode:
+          type: string
+        x:
+          type: integer
+          format: int32
+        "y":
+          type: integer
+          format: int32
+      description: Defines a designated location mark in the warehouse
+    MetaData:
+      type: object
+      properties:
+        key:
+          type: string
+          description: The key to identify the meta data
+        value:
+          type: string
+          description: The data to store
+      description: Defines a structure to store custom data
+      example:
+        value: value
+        key: key
+    MissionEventTypes:
+      type: string
+      description: "<pre>The type of mission events; if a client subscribes to mission\
+        \ events these are the types of messages that will be published<br><br>TaskUpdate\
+        \ \t\t - Published upon change to a task. The Task Update event details the\
+        \ data published in this event.<br>                      Fields - (eventType-\
+        \ TaskUpdate, missionId - The Id of the updated task belongs to, task - The\
+        \ updated task object) <br><br>MissionComplete   - Published when a Mission\
+        \ completes by  either being cancelled or completing all its tasks. <br> \
+        \                    The Mission Complete event, details the data published\
+        \ in this event.<br>                      Fields - (eventType - MissionComplete,\
+        \ fulfillmentMission - The updated completed FulfillmentMission)<br><br>ContainerLocation\
+        \ - Not currently published. TBD<br><br>MissionFailure\t - Published upon\
+        \ a failure to a mission. The Mission Failure event details the data published\
+        \ in this event.<br>                      Fields - (eventType, message - The\
+        \ error message detailing the failure, <br>                              \
+        \ fulfillmentMission-The updated failed mission. If a Task fails, the stateMessage\
+        \ within the task will contain the failure of that task.)<br>LoadLocationUpdate\
+        \ - Published when location of a load changes. Currently supported only for\
+        \ `Tote` load type.<br><pre>"
+      enum:
+      - TaskUpdate
+      - MissionUpdate
+      - MissionComplete
+      - MissionWarning
+      - MissionFailure
+      - LoadLocationUpdate
+    MissionFailureEvent:
+      type: object
+      properties:
+        eventType:
+          type: string
+          description: The type of this event
+          allOf:
+          - $ref: '#/components/schemas/MissionEventTypes'
+        created:
+          type: string
+          description: "When this event was created. If the event originated in the\
+            \ AMR subsystem, the event creation time published by the AMR subsystem\
+            \ will be set, else the event creation time in VTS will be set"
+        fulfillmentMission:
+          $ref: '#/components/schemas/FulfillmentMission'
+        message:
+          type: string
+      description: A mission event published when VTS fails in processing a mission
+    MissionStates:
+      type: string
+      description: "Defines the states a mission can be in once requested.<br/>Requested\
+        \ - The mission has been requested by the client and is preparing for execution.<br/>Pending\
+        \ - The first task has been sent to the AMR subsystem, and VTS is awaiting\
+        \ an update that the task is executing. VTS is waiting for the task update\
+        \ to state which vehicle is assigned and/or executing.<br/>Assigned - The\
+        \ first task has been sent to the AMR subsystem and has been assigned a vehicle\
+        \ but is awaiting that vehicle to become available.<br/>Executing - The tasks\
+        \ in the mission are executing. Updates come from the AMR subsystem to keep\
+        \ VTS and upstream clients up to date with the latest task states.<br/>AwaitingNextTask\
+        \ - All tasks in the mission have executed and completed successfully. There\
+        \ is no Finish task assigned to the mission, so the mission is waiting for\
+        \ more tasks or the finish task to complete.<br/>Finished - All tasks in the\
+        \ mission including the Finish task have completed successfully.<br/>CancelPending\
+        \ - The cancel mission request has been received and the cancel task request\
+        \ has been sent to the AMRsubsystem and the mission is just waiting for the\
+        \ requested task to be completed.<br/>Cancelled - The mission has been canceled.\
+        \ All Tasks have stopped execution.<br/>Aborted - The mission was aborted.\
+        \ It has ended wherever it was. This could be due to a failure or an issue\
+        \ in the AMR subsystem or warehouse."
+      enum:
+      - Requested
+      - Pending
+      - Assigned
+      - Executing
+      - AwaitingNextTask
+      - Finished
+      - CancelPending
+      - Cancelled
+      - Aborted
+    MissionTypes:
+      type: string
+      description: The types of missions that can be requested
+      enum:
+      - FulfillmentMission
+    MissionUpdateEvent:
+      type: object
+      properties:
+        eventType:
+          type: string
+          description: The type of this event
+          allOf:
+          - $ref: '#/components/schemas/MissionEventTypes'
+        created:
+          type: string
+          description: "When this event was created. If the event originated in the\
+            \ AMR subsystem, the event creation time published by the AMR subsystem\
+            \ will be set, else the event creation time in VTS will be set"
+        fulfillmentMission:
+          $ref: '#/components/schemas/FulfillmentMission'
+      description: A mission event published when a mission is updated or completed
+    MissionWarningEvent:
+      type: object
+      properties:
+        eventType:
+          type: string
+          description: The type of this event
+          allOf:
+          - $ref: '#/components/schemas/MissionEventTypes'
+        created:
+          type: string
+          description: "When this event was created. If the event originated in the\
+            \ AMR subsystem, the event creation time published by the AMR subsystem\
+            \ will be set, else the event creation time in VTS will be set"
+        fulfillmentMission:
+          $ref: '#/components/schemas/FulfillmentMission'
+        warning:
+          $ref: '#/components/schemas/MissionWarnings'
+        message:
+          type: string
+        taskHostId:
+          type: string
+      description: A mission event published to alert the host system that the mission
+        is in a warning condition
+    MissionWarnings:
+      type: string
+      enum:
+      - TimeExpired
+      - FailedToRemoveLoadUnit
+    Reason:
+      required:
+      - reason
+      type: object
+      properties:
+        reason:
+          type: string
+          description: Defines a string object that is used for reason
+          example: Reason to stop or resume
+      description: Defines a string object that is used for reasons attached to requests
+    Subscription:
+      required:
+      - callbackUrl
+      - messageType
+      type: object
+      properties:
+        id:
+          type: string
+          description: Set by VTS when the subscription is made; uniquely identifies
+            the subscription
+          example: 534c803e-dd71-44a5-91e5-e6fefa875113
+        messageType:
+          type: string
+          description: The type of messages to subscribe - mission/vehicles
+          example: MissionEvents
+        callbackUrl:
+          type: string
+          description: The url for the subscription; events will be posted to this
+            url
+          example: http://exampleIP:port/vts/missions
+      description: Defines a subscription to the VTS published events
+      example:
+        messageType: MissionEvents
+        callbackUrl: http://exampleIP:port/vts/missions
+        id: 534c803e-dd71-44a5-91e5-e6fefa875113
+    SubscriptionTypes:
+      type: string
+      description: The types of events that can be subscribed to in VTS
+      enum:
+      - MissionEvents
+      - VehicleEvents
+      - LoadLocationEvents
+    SuspendReasons:
+      type: string
+      description: The reasons to suspend a task or vehicle
+      enum:
+      - Pause
+      - Emergency
+    Task:
+      required:
+      - taskType
+      type: object
+      properties:
+        taskType:
+          type: string
+          description: The action to complete with this task
+          example: Pick
+          allOf:
+          - $ref: '#/components/schemas/TaskTypes'
+        taskHostId:
+          type: string
+          description: An optional field for the client to set as its own ID to keep
+            track of the task
+          example: 1e08c9cf-c321-42f1-9b4f-5399d36c5cd9
+        sequence:
+          type: integer
+          description: The sequence number of the task; tasks are executed serially
+            according to their sequence number. Or VTS will set the sequence automatically
+            according to the order of the tasks execution in the mission request
+          format: int32
+          example: 1
+        priority:
+          type: integer
+          description: "The priority of the task. If the AMR subsystem supports priorities,\
+            \ this will be send with the task request. If this is not set, the mission\
+            \ priority will be filled in to the task. If there is no mission priority,\
+            \ the task will be having default value. The value should be in range\
+            \ 0-2147483647 where 0 is the highest priority and 2147483647 is the lowest\
+            \ priority. This range is also configurable in the application."
+          format: int64
+          example: 0
+        timeoutSeconds:
+          type: integer
+          description: "The timeout for an awaitable task in seconds; if this value\
+            \ is less than 0, the timeout is indefinite and VTS will wait for a TaskResume\
+            \ request from the client to resume the Mission."
+          format: int32
+          example: 10
+        locationStationId:
+          type: string
+          description: The target location of where to complete the task; required
+            for vehicle move task types
+          example: AGV.DP02.06.0.RL0610039.6035
+        deviceId:
+          type: string
+          description: "The device which will perform the task. If not set in the\
+            \ request, the device will be chosen by the AMR Subsystem; If it is set,\
+            \ this device will be assigned to the task"
+          example: CARRIER_192168001001
+        angle:
+          type: number
+          description: "the orientation of the load; applicable for wait/drop tasks\
+            \ based on load type. Allowed values: 0.0, 90.0, 180.0, 270.0, 360.0.\
+            \ Default value is 0.0 which means any work face is allowed. Also see\
+            \ configuration 'vts.vendor.quicktron.interface-point-pallet-workfaces'\
+            \ which defines work faces permitted at interface points."
+          format: double
+          example: 270
+        load:
+          type: object
+          description: The load that the task is acting on
+          allOf:
+          - $ref: '#/components/schemas/Load'
+        customMetaData:
+          type: array
+          description: Stores a set of custom meta data that is associated to the
+            task
+          items:
+            $ref: '#/components/schemas/MetaData'
+        taskId:
+          type: string
+          description: The unique identifier of the task set by VTS
+          readOnly: true
+          example: 25a70a33-9271-426c-bb8e-674fdef13e59
+        missionId:
+          type: string
+          description: The id of the mission containing the task; set by VTS
+          readOnly: true
+          example: 39655fd9-0132-476c-a023-5f84b509dec9
+        missionHostId:
+          type: string
+          description: The client-side ID associated with the mission containing the
+            task.
+          example: 9356cc77-e383-4b07-87fc-94200b24b610
+        status:
+          type: string
+          description: The state or status of the task
+          readOnly: true
+          example: Executing
+          allOf:
+          - $ref: '#/components/schemas/TaskStates'
+        subState:
+          type: string
+          description: The sub-state of the current state; this is configured in the
+            instruction set. For details on the possible values see AMR Subsystem
+            instruction set and documentation
+          readOnly: true
+          example: Retrieving
+        stateMessage:
+          type: string
+          description: "A message to describe the current state of the task if applicable\
+            \ (failed, paused)"
+          readOnly: true
+        deviceType:
+          type: string
+          description: The device type assigned to this task
+          readOnly: true
+        startTime:
+          type: string
+          description: The time the task is requested from the AMR subsystem
+          readOnly: true
+          example: 2023-02-02T06:14:35.417Z
+        endTime:
+          type: string
+          description: The time the task was marked finished
+          readOnly: true
+          example: 2023-02-02T06:14:14.644Z
+        errors:
+          type: array
+          description: Stores any errors reported against the task
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+        loadTypeId:
+          type: string
+          description: The ID of the type of load
+      description: Defines a task object that is used to define the individual operations
+        that a mission needs to complete
+      example:
+        deviceType: deviceType
+        missionId: 39655fd9-0132-476c-a023-5f84b509dec9
+        loadTypeId: loadTypeId
+        stateMessage: stateMessage
+        customMetaData:
+        - value: value
+          key: key
+        - value: value
+          key: key
+        priority: 0
+        deviceId: CARRIER_192168001001
+        taskHostId: 1e08c9cf-c321-42f1-9b4f-5399d36c5cd9
+        sequence: 1
+        taskType: Pick
+        subState: Retrieving
+        load: ""
+        locationStationId: AGV.DP02.06.0.RL0610039.6035
+        timeoutSeconds: 10
+        angle: 270
+        startTime: 2023-02-02T06:14:35.417Z
+        endTime: 2023-02-02T06:14:14.644Z
+        taskId: 25a70a33-9271-426c-bb8e-674fdef13e59
+        missionHostId: 9356cc77-e383-4b07-87fc-94200b24b610
+        errors:
+        - errorCategory: ""
+          meta: ""
+          errorMessage: errorMessage
+          errorCode: errorCode
+          errorLabel: errorLabel
+        - errorCategory: ""
+          meta: ""
+          errorMessage: errorMessage
+          errorCode: errorCode
+          errorLabel: errorLabel
+        status: Executing
+    TaskStates:
+      type: string
+      description: "<pre>Defines the states that a task can be in<br><br>Enqueued\
+        \  - The task is in the queue waiting for the previous task to complete<br><br>Requested\
+        \ - The task has been sent to the AMR Subsystem that is awaiting execution<br><br>Enroute\
+        \ - The task is in route to its destination; Not UsedExecuting - The task\
+        \ is in progress. Updates are being received about the task state progress<br><br>Waiting\
+        \   - The task is waiting either for timeout or indefinitely. <br>\t\t\t \
+        \  If indefinitely, a TaskResume will complete the task and resume the mission<br><br>Suspended\
+        \ - The task has been stopped<br><br>Failed    - The AMR Subsystem has reported\
+        \ a failure completing the job. <br>\t\t\t   If the AMR starts reporting updates,\
+        \ the mission will continue.<br>\t\t\t   Otherwise the mission will need to\
+        \ be cancelled by the upstream client<br><br>Errant    - The Task request\
+        \ has been rejected by the ARM Subsystem. <br>\t\t\t   The task will wait\
+        \ indefinitely in this state until it is modified, <br>\t\t\t   or the mission\
+        \ has been cancelled<br><br>Finished  - The task has completed successfully<br><br>Cancelled\
+        \ - The task has been cancelled.  Canceled tasks cannot be resumed.</pre>"
+      enum:
+      - Enqueued
+      - Requested
+      - Enroute
+      - Executing
+      - Waiting
+      - Suspended
+      - Failed
+      - Errant
+      - Finished
+      - Cancelled
+    TaskSubStates:
+      type: string
+      description: "Define the predefined set of sub-states for a task. This is the\
+        \ set that VTS will manage; however the task sub-state is defined as a string,\
+        \ so user defined sub-states are allowed.<br/>Pending - The task is requested\
+        \ and waiting to start moving<br/>Moving - The vehicle is moving (destination\
+        \ is unknown)<br/>Retrieving - The vehicle is retrieving the load for the\
+        \ task<br/>Retrieved - The vehicle has retrieved the load for the tak<br/>Storing\
+        \ - The vehicle is moving to store the load for the task<br/>Stored - The\
+        \ vehicle has dropped the load to the stored location<br/>Parking - The vehicle\
+        \ has moving to the location where it will wait<br/>Parked - The vehicle has\
+        \ arrived at the location where it will wait<br/>Failed - The vehicle or task\
+        \ has failed and is awaiting fixing<br/>Done - The task is done<br/>Cancelled\
+        \ - The task has been cancelled"
+      enum:
+      - Pending
+      - Moving
+      - Retrieving
+      - Retrieved
+      - Storing
+      - Stored
+      - Parking
+      - Parked
+      - Failed
+      - Done
+      - Cancelled
+    TaskTypes:
+      type: string
+      description: "Defines the type of tasks a mission can perform.<br/>Pick - Retrieves\
+        \ the container from its location and brings it to the target location. The\
+        \ container is not dropped but remains on the vehicle for the specified time.<br/>Drop\
+        \ - Retrieves the container from its location and brings it to the target\
+        \ location. The container is dropped at the target location, and the vehicle\
+        \ is released or kept for the next task.<br/>Wait - The vehicle is moved to\
+        \ the target location without a container and waits for the specified time.<br/>Rotate\
+        \ - Rotates the face of the container to the specified angle.<br/>Finish -\
+        \ The mission is completed, and the vehicle is released."
+      enum:
+      - Pick
+      - Drop
+      - Wait
+      - Rotate
+      - Finish
+    TaskUpdateEvent:
+      type: object
+      properties:
+        eventType:
+          type: string
+          description: The type of this event
+          allOf:
+          - $ref: '#/components/schemas/MissionEventTypes'
+        created:
+          type: string
+          description: "When this event was created. If the event originated in the\
+            \ AMR subsystem, the event creation time published by the AMR subsystem\
+            \ will be set, else the event creation time in VTS will be set"
+        task:
+          $ref: '#/components/schemas/Task'
+      description: A mission event published when a task is updated
+    UnitSystems:
+      type: string
+      description: The units used for measurements in VTS requests
+      enum:
+      - Metric
+      - British
+      - USA
+    Vehicle:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The AMR subsystem identifier for the vehicle
+          example: CARRIER_192168001001
+        type:
+          type: string
+          description: The type of vehicle
+          readOnly: true
+          example: M60C-SBDQR0N-13
+        online:
+          type: boolean
+          description: The AMR status
+          readOnly: true
+          example: true
+        state:
+          type: string
+          description: The state of the vehicle is dependent on the AMR Subsystem
+            and type of vehicle
+          readOnly: true
+          example: Idle
+          allOf:
+          - $ref: '#/components/schemas/VehicleStates'
+        locationId:
+          type: string
+          description: The current location of the vehicle
+          readOnly: true
+          example: AGV.DP02.06.0.RL0610075.604.2
+        warehouseId:
+          type: string
+          description: The warehouse id the vehicle is assigned to
+          readOnly: true
+          example: "1"
+        zoneId:
+          type: string
+          description: The current zone the vehicle is assigned to
+          readOnly: true
+          example: kckq
+        areaCode:
+          type: string
+          description: the area where the vehicle is assigned to
+          readOnly: true
+          example: Storage115
+        x:
+          type: integer
+          description: X coordinate
+          format: int32
+          readOnly: true
+          example: 4200
+        "y":
+          type: integer
+          description: Y coordinate
+          format: int32
+          readOnly: true
+          example: 75600
+        direction:
+          type: number
+          description: Direction of an AGV
+          format: double
+          readOnly: true
+          example: 0
+        liftupTime:
+          type: integer
+          description: Timestamp of when the current container was retrieved
+          format: int32
+          readOnly: true
+        speed:
+          type: integer
+          description: Velocity
+          format: int32
+          readOnly: true
+          example: 0
+        mileage:
+          type: integer
+          description: The miles traveled by the vehicle
+          format: int32
+          readOnly: true
+          example: 0
+        power:
+          type: number
+          description: The amount of power in the vehicle battery
+          format: float
+          readOnly: true
+          example: 0.79
+        batteryTemperature:
+          type: number
+          description: The Battery Temperature level
+          format: float
+          readOnly: true
+          example: 30
+        taskId:
+          type: string
+          description: The task Id if the vehicle is assigned to a task
+          readOnly: true
+          example: 6f76170a-750c-4d5b-9a56-687726f8d62e
+        exceptionCode:
+          type: string
+          description: The exception on the vehicle if any failures
+          readOnly: true
+          example: RCS_TRAFFICERR_BLOCKEDBYERRORBUCKET
+        errorLevel:
+          type: string
+          description: The errorLevel on the vehicle if any failures
+          readOnly: true
+          example: Block By Exception Rack
+        stateMessage:
+          type: string
+          description: The stateMessage on the vehicle if any failures
+          readOnly: true
+          example: Obstructed by abnormal bucket lock
+        pathList:
+          type: array
+          items:
+            $ref: '#/components/schemas/VehiclePath'
+      description: Defines the vehicle object for vehicles assigned to missions
+      example:
+        liftupTime: 0
+        batteryTemperature: 30
+        stateMessage: Obstructed by abnormal bucket lock
+        type: M60C-SBDQR0N-13
+        pathList:
+        - locationId: AGV.DP02.06.0.RL0610027.6037.8
+          x: 37800
+          "y": 27600
+        - locationId: AGV.DP02.06.0.RL0610027.6037.8
+          x: 37800
+          "y": 27600
+        speed: 0
+        errorLevel: Block By Exception Rack
+        areaCode: Storage115
+        warehouseId: "1"
+        locationId: AGV.DP02.06.0.RL0610075.604.2
+        x: 4200
+        online: true
+        zoneId: kckq
+        "y": 75600
+        id: CARRIER_192168001001
+        state: Idle
+        power: 0.79
+        exceptionCode: RCS_TRAFFICERR_BLOCKEDBYERRORBUCKET
+        taskId: 6f76170a-750c-4d5b-9a56-687726f8d62e
+        direction: 0
+        mileage: 0
+    VehicleEventTypes:
+      type: string
+      description: The types of events that are published to subscribers of vehicle
+        events
+      enum:
+      - VehicleUpdate
+    VehiclePath:
+      type: object
+      properties:
+        x:
+          type: integer
+          description: X coordinate of particular vehicle assigned to a task
+          format: int32
+          example: 37800
+        "y":
+          type: integer
+          description: Y coordinate of particular vehicle assigned to a task
+          format: int32
+          example: 27600
+        locationId:
+          type: string
+          description: Current location of particular vehicle assigned to a task
+          example: AGV.DP02.06.0.RL0610027.6037.8
+      description: Defines the vehicle path details for a particular vehicle assigned
+        to a task
+      example:
+        locationId: AGV.DP02.06.0.RL0610027.6037.8
+        x: 37800
+        "y": 27600
+    VehicleStates:
+      type: string
+      description: "<pre>Defines the states an AMR subsystem vehicle can be in<br><br>Idle\t\
+        \t- Vehicle is Idle state<br><br>Busy\t\t- Vehicle is busy in operation<br><br>Error\t\
+        - Vehicle has some error<br><br>Locked\t- Vehicle is in locked state<br><br>Charging\t\
+        - Vehicle is charging<br><br></pre>"
+      enum:
+      - Idle
+      - Busy
+      - Error
+      - Locked
+      - Charging
+    VehicleStatusUpdate:
+      type: object
+      properties:
+        eventType:
+          type: string
+          description: "Defines Vehicle events, Including updates about all vehicles\
+            \ and assigned vehicles that are allocated in active VTS mission"
+          example: VehicleUpdate
+          allOf:
+          - $ref: '#/components/schemas/VehicleEventTypes'
+        vehicles:
+          type: array
+          description: Stores Vehicle status updates Including updates about all vehicles
+            and assigned vehicles that are allocated in active VTS mission
+          items:
+            $ref: '#/components/schemas/Vehicle'
+      description: Vehicle status updates are published for any vehicle associated
+        with an executing mission in VTS.
+    VehicleStop:
+      required:
+      - allVehicles
+      type: object
+      properties:
+        allVehicles:
+          type: boolean
+          description: If set to true all vehicles are stopped or resumed regardless
+            of other fields. This is not supported by all AMR subsystems
+          example: true
+        zoneIds:
+          type: array
+          description: Optional if the request is to stop or resume all vehicles in
+            specified zones. All vehicles in the specified zones will be stopped or
+            resumed. This is not supported by all AMR subsystems
+          example: kckq
+          items:
+            type: string
+        vehicleIds:
+          type: array
+          description: Optional- defines the list of vehicles by ID to stop or resume.
+            This is not supported by all AMR subsystems
+          example: CARRIER_192168001001
+          items:
+            type: string
+        reason:
+          type: string
+          description: Reason to stop or resume. This is not supported by all AMR
+            subsystems
+          example: Reason for stopping or resuming a vehicle
+        areaCodes:
+          type: array
+          description: Defines the list of area codes for which vehicles should be
+            stopped or resumed. This must be specified if the `allVehicles` is false.
+            Areas are defined in the AMR subsystems. This is not supported by all
+            AMR subsystems.
+          example: Storage115
+          items:
+            type: string
+      description: Defines a vehicle selection structure for which vehicles to stop
+        or resume
+    inline_response_200:
+      required:
+      - callbackUrl
+      - messageType
+      type: object
+      properties:
+        id:
+          type: string
+          description: Set by VTS when the subscription is made; uniquely identifies
+            the subscription
+          example: 534c803e-dd71-44a5-91e5-e6fefa875113
+        messageType:
+          type: string
+          description: The type of messages to subscribe - mission/vehicles
+          example: MissionEvents
+        callbackUrl:
+          type: string
+          description: The url for the subscription; events will be posted to this
+            url
+          example: http://exampleIP:port/vts/missions
+      description: Defines a subscription to the VTS published events
+      example:
+        messageType: MissionEvents
+        callbackUrl: http://exampleIP:port/vts/missions
+        id: 534c803e-dd71-44a5-91e5-e6fefa875113
+  securitySchemes:
+    SecurityScheme:
+      type: http
+      description: Authentication
+      scheme: basic
+      x-basicInfoFunc: swagger_server.controllers.authorization_controller.check_SecurityScheme
+
