@@ -1,0 +1,19 @@
+/* src/components/ToolPanel.css */
+.tool-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.tool-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 20px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.tool-button.active {
+  background-color: #ccc;
+}
