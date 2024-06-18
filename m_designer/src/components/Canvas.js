@@ -26,15 +26,14 @@ const cytoscapeStyles = [
   }
 ];
 
-const Canvas = ({ selectedTool, setSelectedElement }) => {
+const Canvas = ({ selectedTool, setSelectedElement, elements, setElements }) => {
   const cyRef = useRef(null);
-  const [elements, setElements] = useState([]);
   const [isDrawingEdge, setIsDrawingEdge] = useState(false);
   const [sourceNode, setSourceNode] = useState(null);
-  const [cyInstance, setCyInstance] = useState(null)
+  const [cyInstance, setCyInstance] = useState(null);
 
   useEffect(() => {
-    if (!cyInstance){
+    if (!cyInstance) {
       const cy = cytoscape({
         container: cyRef.current,
         elements: elements,
@@ -45,8 +44,10 @@ const Canvas = ({ selectedTool, setSelectedElement }) => {
       });
       setCyInstance(cy);
     }
-    // return () => cy.destroy();
-  }, [elements, cyInstance]); // Empty dependency array to ensure this runs only once
+
+    // This effect only needs to run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (cyInstance) {
@@ -88,7 +89,7 @@ const Canvas = ({ selectedTool, setSelectedElement }) => {
         const position = event.position;
         const newNode = {
           group: 'nodes',
-          data: { id: `node-${cyInstance.nodes().length + 1}`, label: `Node ${cyInstance.nodes().length + 1}` },
+          data: { id: `node-${cyInstance.nodes().length + 1}`, label: `Node ${cyInstance.nodes().length + 1}`, group: 'nodes' },
           position
         };
         setElements((els) => [...els, newNode]);
@@ -102,7 +103,7 @@ const Canvas = ({ selectedTool, setSelectedElement }) => {
       cyInstance.removeListener('tap', 'node', handleTapNode);
       cyInstance.removeListener('tap', handleTapCanvas);
     };
-  }, [selectedTool, isDrawingEdge, cyInstance, setSelectedElement, sourceNode]);
+  }, [selectedTool, setElements, isDrawingEdge, cyInstance, setSelectedElement, sourceNode]);
 
   return <div ref={cyRef} className="canvas"></div>;
 };

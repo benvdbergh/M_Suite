@@ -8,6 +8,16 @@ import './App.css';
 const App = () => {
   const [selectedTool, setSelectedTool] = useState('select');
   const [selectedElement, setSelectedElement] = useState(null);
+  const [elements, setElements] = useState([]);
+
+  const updateElement = (id, newLabel) => {
+    setElements((prevElements) =>
+      prevElements.map((el) =>
+        el.data.id === id ? { ...el, data: { ...el.data, label: newLabel } } : el
+      )
+    );
+    setSelectedElement((prevElement) => ({ ...prevElement, label: newLabel }));
+  };
 
   return (
     <div className="App">
@@ -15,10 +25,18 @@ const App = () => {
         <ToolPanel selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
       </div>
       <div className="canvas-container">
-        <Canvas selectedTool={selectedTool} setSelectedElement={setSelectedElement} />
+        <Canvas
+          selectedTool={selectedTool}
+          setSelectedElement={setSelectedElement}
+          elements={elements}
+          setElements={setElements}
+        />
       </div>
       <div className="sidebar">
-        <PropertiesSidebar selectedElement={selectedElement} />
+        <PropertiesSidebar
+          selectedElement={selectedElement}
+          updateElement={updateElement}
+        />
       </div>
     </div>
   );
