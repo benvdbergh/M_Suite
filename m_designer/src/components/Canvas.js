@@ -117,10 +117,21 @@ const Canvas = ({ selectedTool, setSelectedElement, elements, setElements }) => 
         const position = event.position;
         const newNode = {
           group: 'nodes',
-          data: { id: `node-${cyInstance.nodes().length + 1}`, label: `Node ${cyInstance.nodes().length + 1}`, group: 'nodes' },
+          data: { 
+            id: `node-${cyInstance.nodes().length + 1}`, 
+            label: `Node ${cyInstance.nodes().length + 1}`, 
+            nodeName: `Node ${cyInstance.nodes().length + 1}`, 
+            nodeDescription: '', 
+            nodePosition: { x: position.x, y: position.y },
+            group: 'nodes'
+          },
           position
         };
         setElements((els) => [...els, newNode]);
+      }
+
+      if (selectedTool === 'select' && event.target === cyInstance) {
+        setSelectedElement(null)
       }
     };
 
