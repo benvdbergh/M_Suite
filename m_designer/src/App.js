@@ -1,22 +1,32 @@
-// src/App.js
 import React, { useState } from 'react';
 import Canvas from './components/Canvas';
 import ToolPanel from './components/ToolPanel';
 import PropertiesSidebar from './components/PropertiesSidebar';
+import ExportButton from './components/ExportButton';
 import './App.css';
+import initialMapData from './interfaces/map.json'; // Import the initial JSON map file
 
 const App = () => {
   const [selectedTool, setSelectedTool] = useState('select');
   const [selectedElement, setSelectedElement] = useState(null);
-  const [elements, setElements] = useState([]);
+  const [mapData, setMapData] = useState(initialMapData); // Store the LIF JSON data in state
 
-  const updateElement = (id, newLabel) => {
-    setElements((prevElements) =>
-      prevElements.map((el) =>
-        el.data.id === id ? { ...el, data: { ...el.data, label: newLabel } } : el
-      )
-    );
-    setSelectedElement((prevElement) => ({ ...prevElement, label: newLabel }));
+  const updateElement = (id, newData) => {
+    setMapData(prevMapData => {
+      const updatedNodes = prevMapData.layouts[0].nodes.map(node =>
+        node.nodeId === id ? { ...node, ...newData } : node
+      );
+      return {
+        ...prevMapData,
+        layouts: [
+          {
+            ...prevMapData.layouts[0],
+            nodes: updatedNodes,
+          },
+        ],
+      };
+    });
+    //setSelectedElement(prevElement => ({ ...prevElement, label: newLabel }));
   };
 
   return (
@@ -28,8 +38,8 @@ const App = () => {
         <Canvas
           selectedTool={selectedTool}
           setSelectedElement={setSelectedElement}
-          elements={elements}
-          setElements={setElements}
+          mapData={mapData} // Pass the LIF JSON data to the Canvas component
+          setMapData={setMapData} // Pass the state setter to the Canvas component
         />
       </div>
       <div className="sidebar">
@@ -38,6 +48,7 @@ const App = () => {
           updateElement={updateElement}
         />
       </div>
+      <ExportButton mapData={mapData} />
     </div>
   );
 };

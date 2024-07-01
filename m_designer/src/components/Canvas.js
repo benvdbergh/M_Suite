@@ -1,16 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import cytoscape from 'cytoscape';
+import { convertToCytoscapeElements } from '../utils/LIF-Cytoscape';
 import './Canvas.css';
-
 var gridGuide = require('cytoscape-grid-guide');
 
 // Ensure jQuery is available globally
 if (typeof window !== 'undefined' && typeof window.$ === 'undefined') {
   window.$ = window.jQuery = require('jquery');
-  
 }
 
-gridGuide( cytoscape ); // register extension
+gridGuide(cytoscape); // register extension
 
 // Define the common style outside of the component function
 const cytoscapeStyles = [
@@ -36,22 +35,19 @@ const cytoscapeStyles = [
 ];
 
 const gridOptions = {
-  snapToGridOnRelease: true, // Snap to grid on release
-  snapToGridDuringDrag: true, // Snap to grid during drag
-  // General
-  gridSpacing: 40, // Distance between the lines of the grid.
-  snapToGridCenter: false, // Snaps nodes to center of gridlines. When false, snaps to gridlines themselves. Note that either snapToGridOnRelease or snapToGridDuringDrag must be true.
+  snapToGridOnRelease: true,
+  snapToGridDuringDrag: true,
+  gridSpacing: 40,
+  snapToGridCenter: false,
   drawGrid: true,
+  zoomDash: true,
+  panGrid: true,
+  gridStackOrder: 0,
+  gridColor: '#dedede',
+  lineWidth: 1.0,
+};
 
-  // Draw Grid
-  zoomDash: true, // Determines whether the size of the dashes should change when the drawing is zoomed in and out if grid is drawn.
-  panGrid: true, // Determines whether the grid should move then the user moves the graph if grid is drawn.
-  gridStackOrder: 0, // Namely z-index
-  gridColor: '#dedede', // Color of grid lines
-  lineWidth: 1.0, // Width of grid lines
-}
-
-const Canvas = ({ selectedTool, setSelectedElement, elements, setElements }) => {
+const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData }) => {
   const cyRef = useRef(null);
   const [isDrawingEdge, setIsDrawingEdge] = useState(false);
   const [sourceNode, setSourceNode] = useState(null);
@@ -61,35 +57,30 @@ const Canvas = ({ selectedTool, setSelectedElement, elements, setElements }) => 
     if (!cyInstance) {
       const cy = cytoscape({
         container: cyRef.current,
-        elements: elements,
+        elements: convertToCytoscapeElements(mapData),
         style: cytoscapeStyles,
         layout: {
           name: 'preset'
         }
       });
-      
-      cy.gridGuide(gridOptions)
-      setCyInstance(cy)
-      
+      setCyInstance(cy);
+      cy.gridGuide(gridOptions);
     }
-
-    // This effect only needs to run once on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [cyInstance, mapData]);
 
   useEffect(() => {
     if (cyInstance) {
-      cyInstance.json({ elements: elements });
+      cyInstance.json({ elements: convertToCytoscapeElements(mapData) });
     }
-  }, [elements, cyInstance]);
+  }, [mapData, cyInstance]);
 
   useEffect(() => {
     if (!cyInstance) return;
 
     const handleTapNode = (event) => {
       const node = event.target;
+      console.log(node.data())
       setSelectedElement(node.data());
-
       if (selectedTool === 'draw-edge') {
         if (!isDrawingEdge) {
           setSourceNode(node);
@@ -100,10 +91,22 @@ const Canvas = ({ selectedTool, setSelectedElement, elements, setElements }) => 
           if (sourceNode.id() !== targetNode.id()) {
             const edgeId = `e${sourceNode.id()}-${targetNode.id()}`;
             const newEdge = {
-              group: 'edges',
-              data: { id: edgeId, source: sourceNode.id(), target: targetNode.id() }
+              edgeId: edgeId,
+              startNodeId: sourceNode.id(),
+              endNodeId: targetNode.id() 
             };
-            setElements((els) => [...els, newEdge]);
+            setMapData(prevMapData => {
+              const updatedEdges = [...prevMapData.layouts[0].edges, newEdge];
+              return {
+                ...prevMapData,
+                layouts: [
+                  {
+                    ...prevMapData.layouts[0],
+                    edges: updatedEdges,
+                  },
+                ],
+              };
+            });
           }
           setIsDrawingEdge(false);
           setSourceNode(null);
@@ -115,23 +118,29 @@ const Canvas = ({ selectedTool, setSelectedElement, elements, setElements }) => 
     const handleTapCanvas = (event) => {
       if (selectedTool === 'draw-node' && event.target === cyInstance) {
         const position = event.position;
+        const newNodeId = `node-${cyInstance.nodes().length + 1}`;
         const newNode = {
-          group: 'nodes',
-          data: { 
-            id: `node-${cyInstance.nodes().length + 1}`, 
-            label: `Node ${cyInstance.nodes().length + 1}`, 
-            nodeName: `Node ${cyInstance.nodes().length + 1}`, 
-            nodeDescription: '', 
-            nodePosition: { x: position.x, y: position.y },
-            group: 'nodes'
-          },
-          position
+          nodeId: newNodeId, 
+          nodeName: `Node ${cyInstance.nodes().length + 1}`, 
+          nodeDescription: '', 
+          nodePosition: { x: position.x, y: position.y },
         };
-        setElements((els) => [...els, newNode]);
+        setMapData(prevMapData => {
+          const updatedNodes = [...prevMapData.layouts[0].nodes, newNode];
+          return {
+            ...prevMapData,
+            layouts: [
+              {
+                ...prevMapData.layouts[0],
+                nodes: updatedNodes,
+              },
+            ],
+          };
+        });
       }
 
       if (selectedTool === 'select' && event.target === cyInstance) {
-        setSelectedElement(null)
+        setSelectedElement(null);
       }
     };
 
@@ -142,7 +151,7 @@ const Canvas = ({ selectedTool, setSelectedElement, elements, setElements }) => 
       cyInstance.removeListener('tap', 'node', handleTapNode);
       cyInstance.removeListener('tap', handleTapCanvas);
     };
-  }, [selectedTool, setElements, isDrawingEdge, cyInstance, setSelectedElement, sourceNode]);
+  }, [selectedTool, setMapData, isDrawingEdge, cyInstance, setSelectedElement, sourceNode]);
 
   return <div ref={cyRef} className="canvas"></div>;
 };
