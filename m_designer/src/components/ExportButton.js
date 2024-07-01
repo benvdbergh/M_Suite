@@ -15,7 +15,7 @@ const ExportButton = ({ mapData }) => {
         URL.revokeObjectURL(url);
     };
 
-    return <button onClick={handleExport} title='export-map'>Export JSON</button>;
+    return <button onClick={handleExport} className="export-button" title='export-map'>Export JSON</button>;
 };
 
 export default ExportButton;

@@ -2,8 +2,9 @@
 import './PropertiesSidebar.css';
 
 import NodeProperties from './NodeProperties';
+import ExportButton from './ExportButton';
 
-const PropertiesSidebar = ({ selectedElement, updateElement }) => {
+const PropertiesSidebar = ({ selectedElement, updateElement, mapData }) => {
 
 
   if (!selectedElement) {
@@ -18,6 +19,7 @@ const PropertiesSidebar = ({ selectedElement, updateElement }) => {
           updateElement={updateElement}
         />
       )}
+      <ExportButton mapData={mapData} />
     </div>
   );
 };

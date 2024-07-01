@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import Canvas from './components/Canvas';
 import ToolPanel from './components/ToolPanel';
 import PropertiesSidebar from './components/PropertiesSidebar';
-import ExportButton from './components/ExportButton';
 import './App.css';
 import initialMapData from './interfaces/map.json'; // Import the initial JSON map file
 
@@ -46,9 +45,9 @@ const App = () => {
         <PropertiesSidebar
           selectedElement={selectedElement}
           updateElement={updateElement}
+          mapData={mapData}
         />
       </div>
-      <ExportButton mapData={mapData} />
     </div>
   );
 };

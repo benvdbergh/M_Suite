@@ -26,7 +26,7 @@ const cytoscapeStyles = [
   {
     selector: 'edge',
     style: {
-      'width': 3,
+      'width': 5,
       'line-color': '#ccc',
       'curve-style': 'bezier',
       'control-point-step-size': 40,

@@ -1,0 +1,76 @@
+.property {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  margin-bottom: 20px;
+}
+
+.property label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.property input[type="text"],
+.property input[type="number"],
+.property textarea,
+.property select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.property button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.property button:hover {
+  background-color: #45a049;
+}
+
+.property .edit-icon {
+  cursor: pointer;
+  color: #007bff;
+  margin-left: 10px;
+}
+
+.property .label-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.property .label-container span {
+  margin-bottom: 5px;
+}
+
+.property .section {
+  margin-bottom: 20px;
+}
+
+.property .section-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.property .section-content {
+  display: none;
+}
+
+.property .section-content.active {
+  display: block;
+}
+
+.property .vertical-resize-textarea {
+  resize: vertical; /* Allows resizing only in the vertical direction */
+  width: 100%; /* Prevent horizontal resizing by setting a fixed width */
+  box-sizing: border-box; 
+}
