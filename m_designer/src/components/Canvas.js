@@ -1,7 +1,16 @@
-// src/components/Canvas.js
 import React, { useEffect, useRef, useState } from 'react';
 import cytoscape from 'cytoscape';
 import './Canvas.css';
+
+var gridGuide = require('cytoscape-grid-guide');
+
+// Ensure jQuery is available globally
+if (typeof window !== 'undefined' && typeof window.$ === 'undefined') {
+  window.$ = window.jQuery = require('jquery');
+  
+}
+
+gridGuide( cytoscape ); // register extension
 
 // Define the common style outside of the component function
 const cytoscapeStyles = [
@@ -26,6 +35,22 @@ const cytoscapeStyles = [
   }
 ];
 
+const gridOptions = {
+  snapToGridOnRelease: true, // Snap to grid on release
+  snapToGridDuringDrag: true, // Snap to grid during drag
+  // General
+  gridSpacing: 40, // Distance between the lines of the grid.
+  snapToGridCenter: false, // Snaps nodes to center of gridlines. When false, snaps to gridlines themselves. Note that either snapToGridOnRelease or snapToGridDuringDrag must be true.
+  drawGrid: true,
+
+  // Draw Grid
+  zoomDash: true, // Determines whether the size of the dashes should change when the drawing is zoomed in and out if grid is drawn.
+  panGrid: true, // Determines whether the grid should move then the user moves the graph if grid is drawn.
+  gridStackOrder: 0, // Namely z-index
+  gridColor: '#dedede', // Color of grid lines
+  lineWidth: 1.0, // Width of grid lines
+}
+
 const Canvas = ({ selectedTool, setSelectedElement, elements, setElements }) => {
   const cyRef = useRef(null);
   const [isDrawingEdge, setIsDrawingEdge] = useState(false);
@@ -42,7 +67,10 @@ const Canvas = ({ selectedTool, setSelectedElement, elements, setElements }) => 
           name: 'preset'
         }
       });
-      setCyInstance(cy);
+      
+      cy.gridGuide(gridOptions)
+      setCyInstance(cy)
+      
     }
 
     // This effect only needs to run once on mount
