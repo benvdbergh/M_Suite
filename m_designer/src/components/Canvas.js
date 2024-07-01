@@ -29,7 +29,8 @@ const cytoscapeStyles = [
       'width': 3,
       'line-color': '#ccc',
       'curve-style': 'bezier',
-      'control-point-step-size': 40
+      'control-point-step-size': 40,
+      'target-arrow-shape': 'triangle'
     }
   }
 ];
@@ -79,7 +80,6 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData }) => {
 
     const handleTapNode = (event) => {
       const node = event.target;
-      console.log(node.data())
       setSelectedElement(node.data());
       if (selectedTool === 'draw-edge') {
         if (!isDrawingEdge) {

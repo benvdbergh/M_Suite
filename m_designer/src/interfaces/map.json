@@ -1,8 +1,19 @@
 {
-    "layouts":[
+    "metaInformation": {
+        "projectIdentification": "defaultProjectId",
+        "creator": "defaultCreator",
+        "exportTimestamp": "",
+        "lifVersion": "1.0.0"
+    },
+    "layouts": [
         {
+            "layoutId": "defaultLayoutId",
+            "layoutName": "defaultLayoutName",
+            "layoutVersion": "1.0.0",
+            "layoutLevelId": "defaultLayoutLevelId",
+            "layoutDescription": "defaultLayoutDescription",
             "nodes": [],
             "edges": []
-        }   
+        }
     ]
 }

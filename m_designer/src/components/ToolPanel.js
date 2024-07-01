@@ -14,18 +14,21 @@ const ToolPanel = ({ selectedTool, setSelectedTool }) => {
       <button
         className={`tool-button ${selectedTool === 'select' ? 'active' : ''}`}
         onClick={() => handleToolChange('select')}
+        title='select-tool-button'
       >
         <FaMousePointer />
       </button>
       <button
         className={`tool-button ${selectedTool === 'draw-node' ? 'active' : ''}`}
         onClick={() => handleToolChange('draw-node')}
+        title='draw-node-tool-button'
       >
         <FaRegDotCircle />
       </button>
       <button
         className={`tool-button ${selectedTool === 'draw-edge' ? 'active' : ''}`}
         onClick={() => handleToolChange('draw-edge')}
+        title='draw-edge-tool-button'
       >
         <FaBezierCurve />
       </button>

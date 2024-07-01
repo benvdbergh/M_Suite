@@ -1,12 +1,11 @@
 import React from 'react';
-import { addMetaData } from '../utils/LIF-Cytoscape';
 
 const ExportButton = ({ mapData }) => {
     const handleExport = (event) => {
         event.stopPropagation();
         console.log(mapData)
-        const lifData = addMetaData(mapData)    
-        const json = JSON.stringify(lifData, null, 2);
+        // const lifData = addMetaData(mapData)    
+        const json = JSON.stringify(mapData, null, 2);
         const blob = new Blob([json], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
