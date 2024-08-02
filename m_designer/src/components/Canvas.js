@@ -30,7 +30,10 @@ const cytoscapeStyles = [
       'line-color': '#ccc',
       'curve-style': 'bezier',
       'control-point-step-size': 40,
-      'target-arrow-shape': 'triangle'
+      'target-arrow-shape': 'data(targetArrowShape)',
+      'source-arrow-shape': 'data(sourceArrowShape)',
+      'source-arrow-color': '#ccc',
+      'target-arrow-color': '#ccc',
     }
   }
 ];
@@ -72,6 +75,7 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData }) => {
   useEffect(() => {
     if (cyInstance) {
       cyInstance.json({ elements: convertToCytoscapeElements(mapData) });
+      cyInstance.style(cytoscapeStyles);
     }
   }, [mapData, cyInstance]);
 
@@ -90,23 +94,36 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData }) => {
           const targetNode = node;
           if (sourceNode.id() !== targetNode.id()) {
             const edgeId = `e${sourceNode.id()}-${targetNode.id()}`;
-            const newEdge = {
-              edgeId: edgeId,
-              startNodeId: sourceNode.id(),
-              endNodeId: targetNode.id() 
-            };
-            setMapData(prevMapData => {
-              const updatedEdges = [...prevMapData.layouts[0].edges, newEdge];
-              return {
-                ...prevMapData,
-                layouts: [
-                  {
-                    ...prevMapData.layouts[0],
-                    edges: updatedEdges,
-                  },
-                ],
+            
+            // Check if an edge already exists in this direction
+            const existingEdge = mapData.layouts[0].edges.find(edge => 
+              edge.startNodeId === sourceNode.id() && edge.endNodeId === targetNode.id()
+            );
+
+            if (!existingEdge) {
+              const newEdge = {
+                edgeId: edgeId,
+                startNodeId: sourceNode.id(),
+                endNodeId: targetNode.id(),
+                edgeName: `Edge ${sourceNode.id()} to ${targetNode.id()}`,
+                edgeDescription: ''
               };
-            });
+              setMapData(prevMapData => {
+                const updatedEdges = [...prevMapData.layouts[0].edges, newEdge];
+                return {
+                  ...prevMapData,
+                  layouts: [
+                    {
+                      ...prevMapData.layouts[0],
+                      edges: updatedEdges,
+                    },
+                  ],
+                };
+              });
+            } else {
+              console.log('Edge already exists in this direction');
+              // Optionally, you can show a message to the user here
+            }
           }
           setIsDrawingEdge(false);
           setSourceNode(null);
@@ -151,7 +168,7 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData }) => {
       cyInstance.removeListener('tap', 'node', handleTapNode);
       cyInstance.removeListener('tap', handleTapCanvas);
     };
-  }, [selectedTool, setMapData, isDrawingEdge, cyInstance, setSelectedElement, sourceNode]);
+  }, [selectedTool, setMapData, isDrawingEdge, cyInstance, setSelectedElement, sourceNode, mapData]);
 
   return <div ref={cyRef} className="canvas"></div>;
 };
