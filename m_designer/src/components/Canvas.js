@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import cytoscape from 'cytoscape';
-import { convertToCytoscapeElements } from '../utils/LIF-Cytoscape';
+import { Graph } from './canvas_components/Graph';
+import { cytoscapeStyles, gridOptions } from '../utils/cyto-config';
+
 import './Canvas.css';
 var gridGuide = require('cytoscape-grid-guide');
 
@@ -11,80 +13,40 @@ if (typeof window !== 'undefined' && typeof window.$ === 'undefined') {
 
 gridGuide(cytoscape); // register extension
 
-// Define the common style outside of the component function
-const cytoscapeStyles = [
-  {
-    selector: 'node',
-    style: {
-      'background-color': '#666',
-      'label': 'data(label)',
-      'width': 20,
-      'height': 20,
-      'shape': 'ellipse',
-    }
-  },
-  {
-    selector: 'edge',
-    style: {
-      'width': 5,
-      'line-color': '#ccc',
-      'curve-style': 'bezier',
-      'control-point-step-size': 40,
-      'target-arrow-shape': 'data(targetArrowShape)',
-      'source-arrow-shape': 'data(sourceArrowShape)',
-      'source-arrow-color': '#ccc',
-      'target-arrow-color': '#ccc',
-    }
-  }
-];
-
-const gridOptions = {
-  snapToGridOnRelease: true,
-  snapToGridDuringDrag: true,
-  gridSpacing: 40,
-  snapToGridCenter: false,
-  drawGrid: true,
-  zoomDash: true,
-  panGrid: true,
-  gridStackOrder: 0,
-  gridColor: '#dedede',
-  lineWidth: 1.0,
-};
-
 const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData }) => {
   const cyRef = useRef(null);
   const [isDrawingEdge, setIsDrawingEdge] = useState(false);
   const [sourceNode, setSourceNode] = useState(null);
   const [cyInstance, setCyInstance] = useState(null);
+  const [graph, setGraph] = useState(new Graph(mapData));
 
   useEffect(() => {
     if (!cyInstance) {
       const cy = cytoscape({
         container: cyRef.current,
-        elements: convertToCytoscapeElements(mapData),
+        elements: graph.toCytoscape(),
         style: cytoscapeStyles,
-        layout: {
-          name: 'preset'
-        }
+        layout: { name: 'preset' }
       });
       setCyInstance(cy);
       cy.gridGuide(gridOptions);
     }
-  }, [cyInstance, mapData]);
+  }, [cyInstance, graph]);
 
   useEffect(() => {
     if (cyInstance) {
-      cyInstance.json({ elements: convertToCytoscapeElements(mapData) });
+      cyInstance.json({ elements: graph.toCytoscape() });
       cyInstance.style(cytoscapeStyles);
     }
-  }, [mapData, cyInstance]);
+  }, [graph, cyInstance]);
 
   useEffect(() => {
     if (!cyInstance) return;
 
     const handleTapNode = (event) => {
       const node = event.target;
-      setSelectedElement(node.data());
+      setSelectedElement(node);
+      // console.log(node);
       if (selectedTool === 'draw-edge') {
         if (!isDrawingEdge) {
           setSourceNode(node);
@@ -93,37 +55,15 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData }) => {
         } else {
           const targetNode = node;
           if (sourceNode.id() !== targetNode.id()) {
-            const edgeId = `e${sourceNode.id()}-${targetNode.id()}`;
-            
-            // Check if an edge already exists in this direction
-            const existingEdge = mapData.layouts[0].edges.find(edge => 
-              edge.startNodeId === sourceNode.id() && edge.endNodeId === targetNode.id()
-            );
-
-            if (!existingEdge) {
-              const newEdge = {
-                edgeId: edgeId,
-                startNodeId: sourceNode.id(),
-                endNodeId: targetNode.id(),
-                edgeName: `Edge ${sourceNode.id()} to ${targetNode.id()}`,
-                edgeDescription: ''
-              };
-              setMapData(prevMapData => {
-                const updatedEdges = [...prevMapData.layouts[0].edges, newEdge];
-                return {
-                  ...prevMapData,
-                  layouts: [
-                    {
-                      ...prevMapData.layouts[0],
-                      edges: updatedEdges,
-                    },
-                  ],
-                };
-              });
-            } else {
-              console.log('Edge already exists in this direction');
-              // Optionally, you can show a message to the user here
-            }
+            const newEdge = graph.addEdge({
+              edgeId: `e${sourceNode.id()}-${targetNode.id()}`,
+              startNodeId: sourceNode.id(),
+              endNodeId: targetNode.id(),
+              edgeName: `Edge ${sourceNode.id()} to ${targetNode.id()}`,
+              edgeDescription: ''
+            });
+            setGraph(new Graph(graph.toMapData()));
+            setMapData(graph.toMapData());
           }
           setIsDrawingEdge(false);
           setSourceNode(null);
@@ -135,25 +75,14 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData }) => {
     const handleTapCanvas = (event) => {
       if (selectedTool === 'draw-node' && event.target === cyInstance) {
         const position = event.position;
-        const newNodeId = `node-${cyInstance.nodes().length + 1}`;
-        const newNode = {
-          nodeId: newNodeId, 
-          nodeName: `Node ${cyInstance.nodes().length + 1}`, 
-          nodeDescription: '', 
-          nodePosition: { x: position.x, y: position.y },
-        };
-        setMapData(prevMapData => {
-          const updatedNodes = [...prevMapData.layouts[0].nodes, newNode];
-          return {
-            ...prevMapData,
-            layouts: [
-              {
-                ...prevMapData.layouts[0],
-                nodes: updatedNodes,
-              },
-            ],
-          };
+        const newNode = graph.addNode({
+          nodeId: `node-${graph.nodes.length + 1}`,
+          nodeName: `Node ${graph.nodes.length + 1}`,
+          nodeDescription: '',
+          nodePosition: position,
         });
+        setGraph(new Graph(graph.toMapData()));
+        setMapData(graph.toMapData());
       }
 
       if (selectedTool === 'select' && event.target === cyInstance) {
@@ -168,7 +97,7 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData }) => {
       cyInstance.removeListener('tap', 'node', handleTapNode);
       cyInstance.removeListener('tap', handleTapCanvas);
     };
-  }, [selectedTool, setMapData, isDrawingEdge, cyInstance, setSelectedElement, sourceNode, mapData]);
+  }, [selectedTool, isDrawingEdge, cyInstance, setSelectedElement, sourceNode, graph, setMapData]);
 
   return <div ref={cyRef} className="canvas"></div>;
 };

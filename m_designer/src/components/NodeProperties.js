@@ -10,20 +10,19 @@ const NodeProperties = ({ selectedElement, updateElement }) => {
     useEffect(() => {
         if (selectedElement) {
             setNewLabel(selectedElement.label || '');
-            setNewName(selectedElement.nodeName || '');
-            setNewDescription(selectedElement.nodeDescription || '');
-            setNewPosition(selectedElement.nodePosition);
+            setNewName(selectedElement.id || '');
+            setNewDescription(selectedElement.description || '');
+            setNewPosition(selectedElement.position || { x: 0, y: 0 });
         }
     }, [selectedElement]);
-    
     
     const handleSubmit = () => {
         if (selectedElement && newLabel !== '') {
             updateElement(selectedElement.id, {
                 label: newLabel,
-                nodeName: newName,
-                nodeDescription: newDescription,
-                nodePosition: newPosition,
+                id: newName,
+                description: newDescription,
+                position: newPosition,
             });
         }
     };
