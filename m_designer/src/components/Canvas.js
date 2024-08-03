@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import cytoscape from 'cytoscape';
 import { Graph } from './canvas_components/Graph';
 import { cytoscapeStyles, gridOptions } from '../utils/cyto-config';
-
+import CanvasControls from './CanvasControls';
 import './Canvas.css';
 var gridGuide = require('cytoscape-grid-guide');
 
@@ -128,7 +128,30 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData, updateE
     };
   }, [selectedTool, isDrawingEdge, cyInstance, setSelectedElement, sourceNode, graph, setMapData, updateElement, selectedElement]);
 
-  return <div ref={cyRef} className="canvas"></div>;
+  const fitToScreen = () => {
+    if (cyInstance) {
+      cyInstance.fit();
+    }
+  };
+
+  const zoomIn = () => {
+    if (cyInstance) {
+      cyInstance.zoom(cyInstance.zoom() + 0.1);
+    }
+  };
+
+  const zoomOut = () => {
+    if (cyInstance) {
+      cyInstance.zoom(cyInstance.zoom() - 0.1);
+    }
+  };
+
+  return (
+    <div className="canvas-container">
+      <div ref={cyRef} className="canvas"></div>
+      <CanvasControls fitToScreen={fitToScreen} zoomIn={zoomIn} zoomOut={zoomOut} />
+    </div>
+  );
 };
 
 export default Canvas;

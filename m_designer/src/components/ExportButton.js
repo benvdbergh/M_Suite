@@ -1,10 +1,9 @@
 import React from 'react';
+import styles from './ExportButton.module.css';
 
 const ExportButton = ({ mapData }) => {
     const handleExport = (event) => {
         event.stopPropagation();
-        console.log(mapData)
-        // const lifData = addMetaData(mapData)    
         const json = JSON.stringify(mapData, null, 2);
         const blob = new Blob([json], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -15,7 +14,7 @@ const ExportButton = ({ mapData }) => {
         URL.revokeObjectURL(url);
     };
 
-    return <button onClick={handleExport} className="export-button" title='export-map'>Export JSON</button>;
+    return <button onClick={handleExport} className={styles.exportButton} title='export-map'>Export JSON</button>;
 };
 
 export default ExportButton;

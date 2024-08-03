@@ -1,7 +1,7 @@
 // src/components/ToolPanel.js
 import React from 'react';
 import { FaMousePointer, FaRegDotCircle, FaBezierCurve } from 'react-icons/fa';
-import './ToolPanel.css';
+import styles from './ToolPanel.module.css';
 
 const ToolPanel = ({ selectedTool, setSelectedTool }) => {
   const handleToolChange = (tool) => {
@@ -10,23 +10,23 @@ const ToolPanel = ({ selectedTool, setSelectedTool }) => {
   };
 
   return (
-    <div className="tool-panel">
+    <div className={styles.toolPanel}>
       <button
-        className={`tool-button ${selectedTool === 'select' ? 'active' : ''}`}
+        className={`${styles.toolButton} ${selectedTool === 'select' ? styles.active : ''}`}
         onClick={() => handleToolChange('select')}
         title='select-tool-button'
       >
         <FaMousePointer />
       </button>
       <button
-        className={`tool-button ${selectedTool === 'draw-node' ? 'active' : ''}`}
+        className={`${styles.toolButton} ${selectedTool === 'draw-node' ? styles.active : ''}`}
         onClick={() => handleToolChange('draw-node')}
         title='draw-node-tool-button'
       >
         <FaRegDotCircle />
       </button>
       <button
-        className={`tool-button ${selectedTool === 'draw-edge' ? 'active' : ''}`}
+        className={`${styles.toolButton} ${selectedTool === 'draw-edge' ? styles.active : ''}`}
         onClick={() => handleToolChange('draw-edge')}
         title='draw-edge-tool-button'
       >

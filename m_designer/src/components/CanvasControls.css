@@ -1,19 +1,20 @@
-/* src/components/ToolPanel.css */
-.tool-panel {
+.canvas-controls {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
   display: flex;
   flex-direction: column;
 }
 
-.tool-button {
+.canvas-controls button {
   background: none;
   border: none;
   cursor: pointer;
   padding: 10px;
   font-size: 20px;
   color: #666;
-  margin-bottom: 10px;
 }
 
-.tool-button.active {
-  background-color: #ccc;
+.canvas-controls button:hover {
+  color: #000;
 }

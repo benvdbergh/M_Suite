@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Canvas from './components/Canvas';
 import ToolPanel from './components/ToolPanel';
 import PropertiesSidebar from './components/PropertiesSidebar';
-import './App.css';
+import styles from './App.module.css';
 import initialMapData from './interfaces/map.json'; // Import the initial JSON map file
 
 const App = () => {
@@ -28,11 +28,11 @@ const App = () => {
   };
 
   return (
-    <div className="App">
-      <div className="tool-panel-container">
+    <div className={styles.App}>
+      <div className={styles.toolPanelContainer}>
         <ToolPanel selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
       </div>
-      <div className="canvas-container">
+      <div className={styles.canvasContainer}>
         <Canvas
           selectedTool={selectedTool}
           setSelectedElement={setSelectedElement}
@@ -40,7 +40,7 @@ const App = () => {
           setMapData={setMapData} // Pass the state setter to the Canvas component
         />
       </div>
-      <div className="sidebar">
+      <div className={styles.sidebar}>
         <PropertiesSidebar
           selectedElement={selectedElement}
           updateElement={updateElement}

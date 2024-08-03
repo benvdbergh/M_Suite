@@ -1,12 +1,12 @@
 // src/components/PropertiesSidebar.js
-import './PropertiesSidebar.css';
+import styles from './PropertiesSidebar.module.css';
 
 import NodeProperties from './NodeProperties';
 import ExportButton from './ExportButton';
 
 const PropertiesSidebar = ({ selectedElement, updateElement, mapData }) => {
   if (!selectedElement) {
-    return <div className="properties-sidebar">No element selected</div>;
+    return <div className={styles.propertiesSidebar}>No element selected</div>;
   }
 
   // Check if the selected element is a node
@@ -14,7 +14,7 @@ const PropertiesSidebar = ({ selectedElement, updateElement, mapData }) => {
   const elementData = selectedElement.data();
 
   return (
-    <div className="properties-sidebar">
+    <div className={styles.propertiesSidebar}>
       {isNode && (
         <NodeProperties
           selectedElement={elementData}
