@@ -6,7 +6,8 @@ const NodeProperties = ({ selectedElement, updateElement }) => {
     const [newName, setNewName] = useState('');
     const [newDescription, setNewDescription] = useState('');
     const [newPosition, setNewPosition] = useState({ x: 0, y: 0 });
-    
+    const [isSectionExpanded, setIsSectionExpanded] = useState(true); // State to manage section expansion
+
     useEffect(() => {
         if (selectedElement) {
             setNewLabel(selectedElement.label || '');
@@ -15,61 +16,60 @@ const NodeProperties = ({ selectedElement, updateElement }) => {
             setNewPosition(selectedElement.position || { x: 0, y: 0 });
         }
     }, [selectedElement]);
-    
-    const handleSubmit = () => {
-        if (selectedElement && newLabel !== '') {
-            updateElement(selectedElement.id, {
-                label: newLabel,
-                id: newName,
-                description: newDescription,
-                position: newPosition,
-            });
+
+    const handleBlur = (field, value) => {
+        if (selectedElement) {
+            updateElement(selectedElement.id, { [field]: value });
         }
     };
-    
-    const toggleSection = (section) => {
-        const content = document.getElementById(section);
-        content.classList.toggle('active');
+
+    const toggleSection = () => {
+        setIsSectionExpanded(!isSectionExpanded);
     };
-    
+
     return (
         <div className="property">
             <div className="section">
-                <div className="section-title" onClick={() => toggleSection('basic-info')}>Basic Information</div>
-                <div className="section-content" id="basic-info">
+                <div className="section-title" onClick={toggleSection}>Basic Information</div>
+                <div className={`section-content ${isSectionExpanded ? 'active' : ''}`} id="basic-info">
                     <label>Node Label:</label>
                     <input
                         type="text"
                         value={newLabel}
                         onChange={(e) => setNewLabel(e.target.value)}
+                        onBlur={(e) => handleBlur('label', e.target.value)}
                     />
                     <label>Node Name:</label>
                     <input
                         type="text"
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
+                        onBlur={(e) => handleBlur('id', e.target.value)}
                     />
                     <label>Node Description:</label>
                     <textarea
-                        className='vertical-resize-textarea'       
+                        className='vertical-resize-textarea'
                         value={newDescription}
                         onChange={(e) => setNewDescription(e.target.value)}
+                        onBlur={(e) => handleBlur('description', e.target.value)}
                     />
                     <label>Node Position:</label>
                     <input
                         type="number"
                         value={newPosition?.x}
                         onChange={(e) => setNewPosition({ ...newPosition, x: e.target.value })}
+                        onBlur={(e) => handleBlur('position', { ...newPosition, x: e.target.value })}
                     />
                     <input
                         type="number"
                         value={newPosition?.y}
                         onChange={(e) => setNewPosition({ ...newPosition, y: e.target.value })}
+                        onBlur={(e) => handleBlur('position', { ...newPosition, y: e.target.value })}
                     />
-                    <button onClick={handleSubmit}>Submit</button>
                 </div>
             </div>
         </div>
-    ); 
+    );
 };
-    export default NodeProperties;
+
+export default NodeProperties;

@@ -13,12 +13,13 @@ if (typeof window !== 'undefined' && typeof window.$ === 'undefined') {
 
 gridGuide(cytoscape); // register extension
 
-const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData }) => {
+const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData, updateElement }) => {
   const cyRef = useRef(null);
   const [isDrawingEdge, setIsDrawingEdge] = useState(false);
   const [sourceNode, setSourceNode] = useState(null);
   const [cyInstance, setCyInstance] = useState(null);
   const [graph, setGraph] = useState(new Graph(mapData));
+  const [selectedElement, setSelectedElementState] = useState(null);
 
   useEffect(() => {
     if (!cyInstance) {
@@ -46,7 +47,7 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData }) => {
     const handleTapNode = (event) => {
       const node = event.target;
       setSelectedElement(node);
-      // console.log(node);
+      highlightElement(node);
       if (selectedTool === 'draw-edge') {
         if (!isDrawingEdge) {
           setSourceNode(node);
@@ -72,6 +73,12 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData }) => {
       }
     };
 
+    const handleTapEdge = (event) => {
+      const edge = event.target;
+      setSelectedElement(edge);
+      highlightElement(edge);
+    };
+
     const handleTapCanvas = (event) => {
       if (selectedTool === 'draw-node' && event.target === cyInstance) {
         const position = event.position;
@@ -87,17 +94,39 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData }) => {
 
       if (selectedTool === 'select' && event.target === cyInstance) {
         setSelectedElement(null);
+        highlightElement(null);
       }
     };
 
+    const handleDragFree = (event) => {
+      const node = event.target;
+      const position = node.position();
+      setSelectedElement(node);
+      updateElement(node.id(), { position });
+    };
+
+    const highlightElement = (element) => {
+      if (selectedElement) {
+        selectedElement.removeClass('selected');
+      }
+      if (element) {
+        element.addClass('selected');
+      }
+      setSelectedElementState(element);
+    };
+
     cyInstance.on('tap', 'node', handleTapNode);
+    cyInstance.on('tap', 'edge', handleTapEdge);
     cyInstance.on('tap', handleTapCanvas);
+    cyInstance.on('dragfree', 'node', handleDragFree);
 
     return () => {
       cyInstance.removeListener('tap', 'node', handleTapNode);
+      cyInstance.removeListener('tap', 'edge', handleTapEdge);
       cyInstance.removeListener('tap', handleTapCanvas);
+      cyInstance.removeListener('dragfree', 'node', handleDragFree);
     };
-  }, [selectedTool, isDrawingEdge, cyInstance, setSelectedElement, sourceNode, graph, setMapData]);
+  }, [selectedTool, isDrawingEdge, cyInstance, setSelectedElement, sourceNode, graph, setMapData, updateElement, selectedElement]);
 
   return <div ref={cyRef} className="canvas"></div>;
 };

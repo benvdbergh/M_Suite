@@ -25,7 +25,6 @@ const App = () => {
         ],
       };
     });
-    //setSelectedElement(prevElement => ({ ...prevElement, label: newLabel }));
   };
 
   return (

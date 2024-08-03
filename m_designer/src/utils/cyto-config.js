@@ -1,4 +1,3 @@
-// Define the common style outside of the component function
 export const cytoscapeStyles = [
   {
     selector: 'node',
@@ -21,6 +20,15 @@ export const cytoscapeStyles = [
       'source-arrow-shape': 'data(sourceArrowShape)',
       'source-arrow-color': '#ccc',
       'target-arrow-color': '#ccc',
+    }
+  },
+  {
+    selector: '.selected',
+    style: {
+      'background-color': 'blue',
+      'line-color': 'blue',
+      'source-arrow-color': 'blue',
+      'target-arrow-color': 'blue',
     }
   }
 ];
