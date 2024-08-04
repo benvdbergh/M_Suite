@@ -45,3 +45,33 @@ export const gridOptions = {
   gridColor: '#dedede',
   lineWidth: 1.0,
 };
+
+export const cxtMenuOptions = ( updateElement ) => ({
+  menuRadius: function (ele) {
+    return ele.isNode() ? 70 : 100;
+  },
+  outsideMenuCancel: 1,
+  selector: 'node',
+  openMenuEvents: 'cxttapstart',
+  commands: [
+    {
+      content: '<i class="fa fa-trash"></i>', // Delete icon
+      select: function (ele) {
+        updateElement(ele.id(), null)
+        ele.remove();
+      }
+    },
+    {
+      content: '<i class="fa fa-edit"></i>', // Edit icon
+      select: function (ele) {
+        ele.unselect();
+      }
+    },
+    {
+      content: '<i class="fa fa-cut"></i>', // Cut icon
+      select: function (ele) {
+        ele.unselect();
+      }
+    },
+  ]
+});

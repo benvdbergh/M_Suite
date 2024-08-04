@@ -38,6 +38,7 @@ const App = () => {
           setSelectedElement={setSelectedElement}
           mapData={mapData} // Pass the LIF JSON data to the Canvas component
           setMapData={setMapData} // Pass the state setter to the Canvas component
+          updateElement={updateElement}
         />
       </div>
       <div className={styles.sidebar}>

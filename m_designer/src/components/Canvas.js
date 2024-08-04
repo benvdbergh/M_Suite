@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import cytoscape from 'cytoscape';
 import { Graph } from './canvas_components/Graph';
-import { cytoscapeStyles, gridOptions } from '../utils/cyto-config';
+import { cytoscapeStyles, gridOptions, cxtMenuOptions } from '../config/cyto-config';
 import CanvasControls from './CanvasControls';
 import './Canvas.css';
+
 var gridGuide = require('cytoscape-grid-guide');
+var cxtmenu = require('cytoscape-cxtmenu');
 
 // Ensure jQuery is available globally
 if (typeof window !== 'undefined' && typeof window.$ === 'undefined') {
@@ -12,6 +14,7 @@ if (typeof window !== 'undefined' && typeof window.$ === 'undefined') {
 }
 
 gridGuide(cytoscape); // register extension
+cxtmenu(cytoscape); // register extension
 
 const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData, updateElement }) => {
   const cyRef = useRef(null);
@@ -31,6 +34,7 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData, updateE
       });
       setCyInstance(cy);
       cy.gridGuide(gridOptions);
+      cy.cxtmenu(cxtMenuOptions(updateElement));
     }
   }, [cyInstance, graph]);
 
@@ -45,6 +49,7 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData, updateE
     if (!cyInstance) return;
 
     const handleTapNode = (event) => {
+      event.stopPropagation(); // Prevent event bubbling
       const node = event.target;
       setSelectedElement(node);
       highlightElement(node);
@@ -74,6 +79,7 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData, updateE
     };
 
     const handleTapEdge = (event) => {
+      event.stopPropagation(); // Prevent event bubbling
       const edge = event.target;
       setSelectedElement(edge);
       highlightElement(edge);
@@ -99,7 +105,13 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData, updateE
     };
 
     const handleDragFree = (event) => {
+      event.stopPropagation();
+      console.log("dragging");
       const node = event.target;
+      if (selectedElement !== node) {
+        setSelectedElement(node);
+        highlightElement(node);
+      }
       const position = node.position();
       setSelectedElement(node);
       updateElement(node.id(), { position });
@@ -118,13 +130,13 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData, updateE
     cyInstance.on('tap', 'node', handleTapNode);
     cyInstance.on('tap', 'edge', handleTapEdge);
     cyInstance.on('tap', handleTapCanvas);
-    cyInstance.on('dragfree', 'node', handleDragFree);
+    cyInstance.on('free', 'node', handleDragFree);
 
     return () => {
       cyInstance.removeListener('tap', 'node', handleTapNode);
       cyInstance.removeListener('tap', 'edge', handleTapEdge);
       cyInstance.removeListener('tap', handleTapCanvas);
-      cyInstance.removeListener('dragfree', 'node', handleDragFree);
+      cyInstance.removeListener('free', 'node', handleDragFree);
     };
   }, [selectedTool, isDrawingEdge, cyInstance, setSelectedElement, sourceNode, graph, setMapData, updateElement, selectedElement]);
 

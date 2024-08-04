@@ -27,6 +27,10 @@ export class Graph {
     return newNode;
   }
 
+  removeNode(nodeId) {
+    this.nodes = this.nodes.filter(node => node.id !== nodeId);
+  }
+
   addEdge(edgeData) {
     const edgeKey = [edgeData.startNodeId, edgeData.endNodeId].sort().join('-');
     let newEdge;
