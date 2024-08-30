@@ -36,14 +36,11 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData, updateE
       cy.gridGuide(gridOptions);
       cy.cxtmenu(cxtMenuOptions(updateElement));
     }
-  }, [cyInstance, graph]);
-
-  useEffect(() => {
-    if (cyInstance) {
+    else {
       cyInstance.json({ elements: graph.toCytoscape() });
       cyInstance.style(cytoscapeStyles);
     }
-  }, [graph, cyInstance]);
+  }, [cyInstance, graph]);
 
   useEffect(() => {
     if (!cyInstance) return;
@@ -115,6 +112,10 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData, updateE
       const position = node.position();
       setSelectedElement(node);
       updateElement(node.id(), { position });
+
+      // Update graph and map data
+      setGraph(new Graph(graph.toMapData()));
+      setMapData(graph.toMapData());
     };
 
     const highlightElement = (element) => {
