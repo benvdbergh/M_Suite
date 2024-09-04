@@ -1,18 +1,19 @@
 import React from 'react';
-import styles from'./LayoutDropdown.module.css';
+import { Select, MenuItem, Box } from '@mui/material';
+import styles from './LayoutDropdown.module.css';
 
 const LayoutDropdown = ({ layouts, onLayoutChange, onCreateNewLayout }) => {
   return (
-    <div className={styles['layout-dropdown']}>
-      <select onChange={(e) => onLayoutChange(e.target.value)}>
+    <Box className={styles['layout-dropdown']}>
+      <Select onChange={(e) => onLayoutChange(e.target.value)} fullWidth>
         {layouts.map((layout, index) => (
-          <option key={index} value={layout.layoutId}>
+          <MenuItem key={index} value={layout.layoutId}>
             {layout.layoutName}
-          </option>
+          </MenuItem>
         ))}
-        <option value="create-new">Create New Layout</option>
-      </select>
-    </div>
+        <MenuItem value="create-new">Create New Layout</MenuItem>
+      </Select>
+    </Box>
   );
 };
 

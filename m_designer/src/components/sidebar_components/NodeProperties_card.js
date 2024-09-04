@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { TextField, TextareaAutosize, Typography, Box, Collapse, IconButton } from '@mui/material';
+import { ExpandMore } from '@mui/icons-material';
 import styles from './Properties_card.module.css';
 
 const NodeProperties = ({ selectedElement, updateElement }) => {
@@ -6,7 +8,7 @@ const NodeProperties = ({ selectedElement, updateElement }) => {
     const [newName, setNewName] = useState('');
     const [newDescription, setNewDescription] = useState('');
     const [newPosition, setNewPosition] = useState({ x: 0, y: 0 });
-    const [isSectionExpanded, setIsSectionExpanded] = useState(true); // State to manage section expansion
+    const [isSectionExpanded, setIsSectionExpanded] = useState(true);
 
     useEffect(() => {
         if (selectedElement) {
@@ -28,47 +30,64 @@ const NodeProperties = ({ selectedElement, updateElement }) => {
     };
 
     return (
-        <div className={styles.property}>
-            <div className={styles.section}>
-                <div className={styles['section-title']} onClick={toggleSection}>Basic Information</div>
-                <div className={`${styles['section-content']} ${isSectionExpanded ? styles.active : ''}`} id="basic-info">
-                    <label>Node Label:</label>
-                    <input
-                        type="text"
-                        value={newLabel}
-                        onChange={(e) => setNewLabel(e.target.value)}
-                        onBlur={(e) => handleBlur('label', e.target.value)}
-                    />
-                    <label>Node Name:</label>
-                    <input
-                        type="text"
-                        value={newName}
-                        onChange={(e) => setNewName(e.target.value)}
-                        onBlur={(e) => handleBlur('id', e.target.value)}
-                    />
-                    <label>Node Description:</label>
-                    <textarea
-                        className={styles['vertical-resize-textarea']}
-                        value={newDescription}
-                        onChange={(e) => setNewDescription(e.target.value)}
-                        onBlur={(e) => handleBlur('description', e.target.value)}
-                    />
-                    <label>Node Position:</label>
-                    <input
-                        type="number"
-                        value={newPosition?.x}
-                        onChange={(e) => setNewPosition({ ...newPosition, x: e.target.value })}
-                        onBlur={(e) => handleBlur('position', { ...newPosition, x: e.target.value })}
-                    />
-                    <input
-                        type="number"
-                        value={newPosition?.y}
-                        onChange={(e) => setNewPosition({ ...newPosition, y: e.target.value })}
-                        onBlur={(e) => handleBlur('position', { ...newPosition, y: e.target.value })}
-                    />
-                </div>
-            </div>
-        </div>
+        <Box className={styles.property}>
+            <Box className={styles.section}>
+                <Box display="flex" alignItems="center" onClick={toggleSection}>
+                    <Typography variant="h6">Basic Information</Typography>
+                    <IconButton>
+                        <ExpandMore />
+                    </IconButton>
+                </Box>
+                <Collapse in={isSectionExpanded}>
+                    <Box className={styles['section-content']} id="basic-info">
+                        <TextField
+                            label="Node Label"
+                            value={newLabel}
+                            onChange={(e) => setNewLabel(e.target.value)}
+                            onBlur={(e) => handleBlur('label', e.target.value)}
+                            fullWidth
+                            margin="normal"
+                        />
+                        <TextField
+                            label="Node Name"
+                            value={newName}
+                            onChange={(e) => setNewName(e.target.value)}
+                            onBlur={(e) => handleBlur('id', e.target.value)}
+                            fullWidth
+                            margin="normal"
+                        />
+                        <TextField
+                            label="Node Description"
+                            value={newDescription}
+                            onChange={(e) => setNewDescription(e.target.value)}
+                            onBlur={(e) => handleBlur('description', e.target.value)}
+                            fullWidth
+                            margin="normal"
+                            multiline
+                            rows={4}
+                        />
+                        <TextField
+                            label="Node Position X"
+                            type="number"
+                            value={newPosition?.x}
+                            onChange={(e) => setNewPosition({ ...newPosition, x: e.target.value })}
+                            onBlur={(e) => handleBlur('position', { ...newPosition, x: e.target.value })}
+                            fullWidth
+                            margin="normal"
+                        />
+                        <TextField
+                            label="Node Position Y"
+                            type="number"
+                            value={newPosition?.y}
+                            onChange={(e) => setNewPosition({ ...newPosition, y: e.target.value })}
+                            onBlur={(e) => handleBlur('position', { ...newPosition, y: e.target.value })}
+                            fullWidth
+                            margin="normal"
+                        />
+                    </Box>
+                </Collapse>
+            </Box>
+        </Box>
     );
 };
 
