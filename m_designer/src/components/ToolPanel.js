@@ -6,22 +6,22 @@ import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import { styled } from '@mui/system';
 
-const ToolPanelContainer = styled(Box)({
+const ToolPanelContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-});
+}));
 
-const ToolButton = styled(IconButton)(({ active }) => ({
+const ToolButton = styled(IconButton)(({ theme, active }) => ({
   background: 'none',
   border: 'none',
   cursor: 'pointer',
-  padding: '10px',
-  fontSize: '20px',
-  color: '#666',
-  marginBottom: '10px',
-  backgroundColor: active ? '#cccccc' : 'transparent',
+  padding: theme.spacing(1),
+  fontSize: theme.typography.pxToRem(20),
+  color: active ? theme.palette.primary.main : theme.palette.text.secondary,
+  marginBottom: theme.spacing(1),
+  backgroundColor: active ? theme.palette.action.selected : 'transparent',
   '&:hover': {
-    backgroundColor: active ? '#cccccc' : '#e0e0e0', // Default hover color
+    backgroundColor: active ? theme.palette.action.selected : theme.palette.action.hover,
   },
 }));
 

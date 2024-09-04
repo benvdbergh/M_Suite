@@ -1,3 +1,7 @@
+import { lightTheme } from '../theme';
+
+const primaryColor = lightTheme.palette.primary.main;
+
 export const cytoscapeStyles = [
   {
     selector: 'node',
@@ -25,10 +29,10 @@ export const cytoscapeStyles = [
   {
     selector: '.selected',
     style: {
-      'background-color': 'blue',
-      'line-color': 'blue',
-      'source-arrow-color': 'blue',
-      'target-arrow-color': 'blue',
+      'background-color': primaryColor,
+      'line-color': primaryColor,
+      'source-arrow-color': primaryColor,
+      'target-arrow-color': primaryColor,
     }
   }
 ];
@@ -46,7 +50,7 @@ export const gridOptions = {
   lineWidth: 1.0,
 };
 
-export const cxtMenuOptions = ( updateElement ) => ({
+export const cxtMenuOptions = (updateElement) => ({
   menuRadius: function (ele) {
     return ele.isNode() ? 70 : 100;
   },

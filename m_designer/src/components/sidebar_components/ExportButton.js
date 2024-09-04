@@ -55,7 +55,7 @@ const ExportButton = ({ mapData }) => {
     };
 
     return (
-        <ExportButtonContainer onClick={handleExport} title='export-map'>
+        <ExportButtonContainer onClick={handleExport} title='export-map' size='small'>
             Export LIF
         </ExportButtonContainer>
     );

@@ -7,6 +7,7 @@ const LayoutDropdownContainer = styled(Box)({
   top: '10px',
   left: '10px',
   zIndex: 1000,
+  backgroundColor: '#f4f4f4',
 });
 
 const LayoutDropdown = ({ layouts, onLayoutChange, onCreateNewLayout }) => {
@@ -16,6 +17,7 @@ const LayoutDropdown = ({ layouts, onLayoutChange, onCreateNewLayout }) => {
         onChange={(e) => onLayoutChange(e.target.value)}
         fullWidth
         defaultValue={layouts.length > 0 ? layouts[0].layoutId : ''}
+        size='small'
       >
         {layouts.map((layout, index) => (
           <MenuItem key={index} value={layout.layoutId}>

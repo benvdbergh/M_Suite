@@ -2,36 +2,43 @@ import React, { useState } from 'react';
 import Canvas from './components/Canvas';
 import ToolPanel from './components/ToolPanel';
 import PropertiesSidebar from './components/sidebar_components/Properties_sidebar';
+import AppBarComponent from './components/AppBar';
 import { Box } from '@mui/material';
 import { styled } from '@mui/system';
 import initialMapData from './interfaces/map.json';
 
-const AppContainer = styled(Box)({
+const AppContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
+  flexDirection: 'column',
   height: '100vh',
-});
+}));
 
-const ToolPanelContainer = styled(Box)({
+const MainContent = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flex: 1,
+}));
+
+const ToolPanelContainer = styled(Box)(({ theme }) => ({
   width: '60px',
-  backgroundColor: '#f4f4f4',
-  borderRight: '1px solid #ccc',
+  backgroundColor: theme.palette.background.default,
+  borderRight: `1px solid ${theme.palette.divider}`,
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  paddingTop: '20px',
-});
+  paddingTop: theme.spacing(2),
+}));
 
-const CanvasContainer = styled(Box)({
+const CanvasContainer = styled(Box)(({ theme }) => ({
   flex: 1,
   position: 'relative',
-});
+}));
 
-const SidebarContainer = styled(Box)({
+const SidebarContainer = styled(Box)(({ theme }) => ({
   width: '250px',
-  backgroundColor: '#f4f4f4',
-  borderLeft: '1px solid #ccc',
-  padding: '10px',
-});
+  backgroundColor: theme.palette.background.default,
+  borderLeft: `1px solid ${theme.palette.divider}`,
+  padding: theme.spacing(1),
+}));
 
 const App = () => {
   const [selectedTool, setSelectedTool] = useState('select');
@@ -57,25 +64,28 @@ const App = () => {
 
   return (
     <AppContainer>
-      <ToolPanelContainer>
-        <ToolPanel selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
-      </ToolPanelContainer>
-      <CanvasContainer>
-        <Canvas
-          selectedTool={selectedTool}
-          setSelectedElement={setSelectedElement}
-          mapData={mapData}
-          setMapData={setMapData}
-          updateElement={updateElement}
-        />
-      </CanvasContainer>
-      <SidebarContainer>
-        <PropertiesSidebar
-          selectedElement={selectedElement}
-          updateElement={updateElement}
-          mapData={mapData}
-        />
-      </SidebarContainer>
+      <AppBarComponent />
+      <MainContent>
+        <ToolPanelContainer>
+          <ToolPanel selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
+        </ToolPanelContainer>
+        <CanvasContainer>
+          <Canvas
+            selectedTool={selectedTool}
+            setSelectedElement={setSelectedElement}
+            mapData={mapData}
+            setMapData={setMapData}
+            updateElement={updateElement}
+          />
+        </CanvasContainer>
+        <SidebarContainer>
+          <PropertiesSidebar
+            selectedElement={selectedElement}
+            updateElement={updateElement}
+            mapData={mapData}
+          />
+        </SidebarContainer>
+      </MainContent>
     </AppContainer>
   );
 };
