@@ -1,7 +1,0 @@
-/* src/components/Properties_sidebar.css */
-.propertiesSidebar {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-}

@@ -4,7 +4,20 @@ import { Graph } from './graph_components/Graph';
 import { cytoscapeStyles, gridOptions, cxtMenuOptions } from '../config/cyto-config';
 import CanvasControls from './CanvasControls';
 import LayoutDropdown from './LayoutDropdown'; // Import the new component
-import styles from './Canvas.module.css';
+import { Box } from '@mui/material';
+import { styled } from '@mui/system';
+
+const CanvasContainer = styled(Box)({
+  position: 'relative',
+  width: '100%',
+  height: '100%',
+});
+
+const CanvasBackground = styled(Box)({
+  width: '100%',
+  height: '100%',
+  backgroundColor: '#fff',
+});
 
 var gridGuide = require('cytoscape-grid-guide');
 var cxtmenu = require('cytoscape-cxtmenu');
@@ -179,15 +192,15 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData, updateE
   };
 
   return (
-    <div className={styles['canvas-container']}>
+    <CanvasContainer>
       <LayoutDropdown
         layouts={layouts}
         onLayoutChange={handleLayoutChange}
         onCreateNewLayout={() => handleLayoutChange('create-new')}
       />
-      <div ref={cyRef} className={styles['canvas']}></div> 
+      <CanvasBackground ref={cyRef}></CanvasBackground>
       <CanvasControls fitToScreen={fitToScreen} zoomIn={zoomIn} zoomOut={zoomOut} />
-    </div>
+    </CanvasContainer>
   );
 };
 

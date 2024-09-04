@@ -1,8 +1,29 @@
 // src/components/ToolPanel.js
 import React from 'react';
 import { IconButton, Box } from '@mui/material';
-import { FaMousePointer, FaRegDotCircle, FaBezierCurve } from 'react-icons/fa';
-import styles from './ToolPanel.module.css';
+import MouseIcon from '@mui/icons-material/Mouse';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import { styled } from '@mui/system';
+
+const ToolPanelContainer = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+});
+
+const ToolButton = styled(IconButton)(({ active }) => ({
+  background: 'none',
+  border: 'none',
+  cursor: 'pointer',
+  padding: '10px',
+  fontSize: '20px',
+  color: '#666',
+  marginBottom: '10px',
+  backgroundColor: active ? '#cccccc' : 'transparent',
+  '&:hover': {
+    backgroundColor: active ? '#cccccc' : '#e0e0e0', // Default hover color
+  },
+}));
 
 const ToolPanel = ({ selectedTool, setSelectedTool }) => {
   const handleToolChange = (tool) => {
@@ -10,29 +31,29 @@ const ToolPanel = ({ selectedTool, setSelectedTool }) => {
   };
 
   return (
-    <Box className={styles.toolPanel}>
-      <IconButton
-        className={`${styles.toolButton} ${selectedTool === 'select' ? styles.active : ''}`}
+    <ToolPanelContainer>
+      <ToolButton
+        active={selectedTool === 'select'}
         onClick={() => handleToolChange('select')}
         title='select-tool-button'
       >
-        <FaMousePointer />
-      </IconButton>
-      <IconButton
-        className={`${styles.toolButton} ${selectedTool === 'draw-node' ? styles.active : ''}`}
+        <MouseIcon />
+      </ToolButton>
+      <ToolButton
+        active={selectedTool === 'draw-node'}
         onClick={() => handleToolChange('draw-node')}
         title='draw-node-tool-button'
       >
-        <FaRegDotCircle />
-      </IconButton>
-      <IconButton
-        className={`${styles.toolButton} ${selectedTool === 'draw-edge' ? styles.active : ''}`}
+        <RadioButtonUncheckedIcon />
+      </ToolButton>
+      <ToolButton
+        active={selectedTool === 'draw-edge'}
         onClick={() => handleToolChange('draw-edge')}
         title='draw-edge-tool-button'
       >
-        <FaBezierCurve />
-      </IconButton>
-    </Box>
+        <TimelineIcon />
+      </ToolButton>
+    </ToolPanelContainer>
   );
 };
 

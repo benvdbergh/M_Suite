@@ -1,6 +1,25 @@
 import React from 'react';
-import styles from './ExportButton.module.css';
+import { styled } from '@mui/system';
+import Button from '@mui/material/Button';
+
 import mapTemplate from '../../interfaces/map.json'; // Import the map template
+
+const ExportButtonContainer = styled(Button)({
+  display: 'flex',
+  justifyContent: 'center',
+  marginTop: '20px',
+  backgroundColor: '#4CAF50',
+  color: 'white',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer',
+  textAlign: 'center',
+  padding: '10px 20px',
+  '&:hover': {
+    backgroundColor: '#45a049',
+  },
+});
+
 
 const ExportButton = ({ mapData }) => {
     const handleExport = (event) => {
@@ -36,9 +55,9 @@ const ExportButton = ({ mapData }) => {
     };
 
     return (
-        <button onClick={handleExport} className={styles.exportButton} title='export-map'>
+        <ExportButtonContainer onClick={handleExport} title='export-map'>
             Export LIF
-        </button>
+        </ExportButtonContainer>
     );
 };
 

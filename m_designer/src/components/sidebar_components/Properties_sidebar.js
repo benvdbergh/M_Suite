@@ -1,15 +1,22 @@
-// src/components/PropertiesSidebar.js
-import styles from './Properties_sidebar.module.css';
-
 import NodeProperties from './NodeProperties_card';
 import ExportButton from './ExportButton';
+
+import { styled } from '@mui/system';
+import { Box } from '@mui/material';
+
+const PropertiesSidebarContainer = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'space-between',
+  height: '100%',
+});
 
 const PropertiesSidebar = ({ selectedElement, updateElement, mapData }) => {
   const isNode = selectedElement?.isNode();
   const elementData = selectedElement?.data();
 
   return (
-    <div className={styles.propertiesSidebar}>
+    <PropertiesSidebarContainer>
       {selectedElement ? (
         isNode && (
           <NodeProperties
@@ -21,7 +28,7 @@ const PropertiesSidebar = ({ selectedElement, updateElement, mapData }) => {
         "No element selected"
       )}
       <ExportButton mapData={mapData} />
-    </div>
+    </PropertiesSidebarContainer>
   );
 };
 

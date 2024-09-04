@@ -3,8 +3,35 @@ import Canvas from './components/Canvas';
 import ToolPanel from './components/ToolPanel';
 import PropertiesSidebar from './components/sidebar_components/Properties_sidebar';
 import { Box } from '@mui/material';
-import styles from './App.module.css';
+import { styled } from '@mui/system';
 import initialMapData from './interfaces/map.json';
+
+const AppContainer = styled(Box)({
+  display: 'flex',
+  height: '100vh',
+});
+
+const ToolPanelContainer = styled(Box)({
+  width: '60px',
+  backgroundColor: '#f4f4f4',
+  borderRight: '1px solid #ccc',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  paddingTop: '20px',
+});
+
+const CanvasContainer = styled(Box)({
+  flex: 1,
+  position: 'relative',
+});
+
+const SidebarContainer = styled(Box)({
+  width: '250px',
+  backgroundColor: '#f4f4f4',
+  borderLeft: '1px solid #ccc',
+  padding: '10px',
+});
 
 const App = () => {
   const [selectedTool, setSelectedTool] = useState('select');
@@ -29,11 +56,11 @@ const App = () => {
   };
 
   return (
-    <Box className={styles.App}>
-      <Box className={styles.toolPanelContainer}>
+    <AppContainer>
+      <ToolPanelContainer>
         <ToolPanel selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
-      </Box>
-      <Box className={styles.canvasContainer}>
+      </ToolPanelContainer>
+      <CanvasContainer>
         <Canvas
           selectedTool={selectedTool}
           setSelectedElement={setSelectedElement}
@@ -41,15 +68,15 @@ const App = () => {
           setMapData={setMapData}
           updateElement={updateElement}
         />
-      </Box>
-      <Box className={styles.sidebar}>
+      </CanvasContainer>
+      <SidebarContainer>
         <PropertiesSidebar
           selectedElement={selectedElement}
           updateElement={updateElement}
           mapData={mapData}
         />
-      </Box>
-    </Box>
+      </SidebarContainer>
+    </AppContainer>
   );
 };
 
