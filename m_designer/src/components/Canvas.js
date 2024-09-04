@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import cytoscape from 'cytoscape';
-import { Graph } from './canvas_components/Graph';
+import { Graph } from './graph_components/Graph';
 import { cytoscapeStyles, gridOptions, cxtMenuOptions } from '../config/cyto-config';
 import CanvasControls from './CanvasControls';
-import './Canvas.css';
+import LayoutDropdown from './LayoutDropdown'; // Import the new component
+import styles from './Canvas.module.css';
 
 var gridGuide = require('cytoscape-grid-guide');
 var cxtmenu = require('cytoscape-cxtmenu');
@@ -23,6 +24,7 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData, updateE
   const [cyInstance, setCyInstance] = useState(null);
   const [graph, setGraph] = useState(new Graph(mapData));
   const [selectedElement, setSelectedElementState] = useState(null);
+  const [layouts, setLayouts] = useState(mapData.layouts); // State to store layouts
 
   useEffect(() => {
     if (!cyInstance) {
@@ -35,12 +37,29 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData, updateE
       setCyInstance(cy);
       cy.gridGuide(gridOptions);
       cy.cxtmenu(cxtMenuOptions(updateElement));
-    }
-    else {
+    } else {
       cyInstance.json({ elements: graph.toCytoscape() });
       cyInstance.style(cytoscapeStyles);
     }
-  }, [cyInstance, graph]);
+  }, [cyInstance, graph, updateElement]);
+
+  const handleLayoutChange = (layoutId) => {
+    if (layoutId === 'create-new') {
+      // Handle creating a new layout
+      const newLayout = {
+        layoutId: `layout-${layouts.length + 1}`,
+        layoutName: `Layout ${layouts.length + 1}`,
+        nodes: [],
+        edges: []
+      };
+      setLayouts([...layouts, newLayout]);
+      setMapData({ ...mapData, layouts: [...layouts, newLayout] });
+    } else {
+      // Handle changing to an existing layout
+      const selectedLayout = layouts.find(layout => layout.layoutId === layoutId);
+      setGraph(new Graph({ layouts: [selectedLayout] }));
+    }
+  };
 
   useEffect(() => {
     if (!cyInstance) return;
@@ -58,7 +77,7 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData, updateE
         } else {
           const targetNode = node;
           if (sourceNode.id() !== targetNode.id()) {
-            const newEdge = graph.addEdge({
+            graph.addEdge({
               edgeId: `e${sourceNode.id()}-${targetNode.id()}`,
               startNodeId: sourceNode.id(),
               endNodeId: targetNode.id(),
@@ -85,7 +104,7 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData, updateE
     const handleTapCanvas = (event) => {
       if (selectedTool === 'draw-node' && event.target === cyInstance) {
         const position = event.position;
-        const newNode = graph.addNode({
+        graph.addNode({
           nodeId: `node-${graph.nodes.length + 1}`,
           nodeName: `Node ${graph.nodes.length + 1}`,
           nodeDescription: '',
@@ -160,8 +179,13 @@ const Canvas = ({ selectedTool, setSelectedElement, mapData, setMapData, updateE
   };
 
   return (
-    <div className="canvas-container">
-      <div ref={cyRef} className="canvas"></div>
+    <div className={styles['canvas-container']}>
+      <LayoutDropdown
+        layouts={layouts}
+        onLayoutChange={handleLayoutChange}
+        onCreateNewLayout={() => handleLayoutChange('create-new')}
+      />
+      <div ref={cyRef} className={styles['canvas']}></div> 
       <CanvasControls fitToScreen={fitToScreen} zoomIn={zoomIn} zoomOut={zoomOut} />
     </div>
   );

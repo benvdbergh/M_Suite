@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './ExportButton.module.css';
-import mapTemplate from '../interfaces/map.json'; // Import the map template
+import mapTemplate from '../../interfaces/map.json'; // Import the map template
 
 const ExportButton = ({ mapData }) => {
     const handleExport = (event) => {
@@ -12,10 +12,7 @@ const ExportButton = ({ mapData }) => {
             layouts: mapTemplate.layouts.map(layout => ({
                 ...layout,
                 nodes: mapData.layouts[0].nodes,
-                edges: mapData.layouts[0].edges.map(edge => ({
-                    ...edge,
-                    edgeDescription: edge.edgeDescription + ' - Note: This is an edge'
-                }))
+                edges: mapData.layouts[0].edges
             }))
         };
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './NodeProperties.css';
+import styles from './Properties_card.module.css';
 
 const NodeProperties = ({ selectedElement, updateElement }) => {
     const [newLabel, setNewLabel] = useState('');
@@ -28,10 +28,10 @@ const NodeProperties = ({ selectedElement, updateElement }) => {
     };
 
     return (
-        <div className="property">
-            <div className="section">
-                <div className="section-title" onClick={toggleSection}>Basic Information</div>
-                <div className={`section-content ${isSectionExpanded ? 'active' : ''}`} id="basic-info">
+        <div className={styles.property}>
+            <div className={styles.section}>
+                <div className={styles['section-title']} onClick={toggleSection}>Basic Information</div>
+                <div className={`${styles['section-content']} ${isSectionExpanded ? styles.active : ''}`} id="basic-info">
                     <label>Node Label:</label>
                     <input
                         type="text"
@@ -48,7 +48,7 @@ const NodeProperties = ({ selectedElement, updateElement }) => {
                     />
                     <label>Node Description:</label>
                     <textarea
-                        className='vertical-resize-textarea'
+                        className={styles['vertical-resize-textarea']}
                         value={newDescription}
                         onChange={(e) => setNewDescription(e.target.value)}
                         onBlur={(e) => handleBlur('description', e.target.value)}

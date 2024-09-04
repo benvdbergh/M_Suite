@@ -1,7 +1,7 @@
 // src/components/PropertiesSidebar.js
-import styles from './PropertiesSidebar.module.css';
+import styles from './Properties_sidebar.module.css';
 
-import NodeProperties from './NodeProperties';
+import NodeProperties from './NodeProperties_card';
 import ExportButton from './ExportButton';
 
 const PropertiesSidebar = ({ selectedElement, updateElement, mapData }) => {

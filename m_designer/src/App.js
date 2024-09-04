@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Canvas from './components/Canvas';
 import ToolPanel from './components/ToolPanel';
-import PropertiesSidebar from './components/PropertiesSidebar';
+import PropertiesSidebar from './components/sidebar_components/Properties_sidebar';
 import styles from './App.module.css';
 import initialMapData from './interfaces/map.json'; // Import the initial JSON map file
 
