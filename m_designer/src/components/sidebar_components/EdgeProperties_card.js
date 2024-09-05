@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Typography, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import { TextField, Typography, Accordion, AccordionSummary, AccordionDetails, Autocomplete } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const NodeProperties = ({ selectedElement, updateElement }) => {
+const EdgeProperties = ({ selectedElement, updateElement, mapData }) => {
   const [newId, setNewId] = useState('');
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');
-  const [newPosition, setNewPosition] = useState({ x: 0, y: 0 });
+  const [startNodeId, setStartNodeId] = useState('');
+  const [endNodeId, setEndNodeId] = useState('');
+  const [nodeOptions, setNodeOptions] = useState([]);
+
   const [isSectionExpanded, setIsSectionExpanded] = useState(true);
 
   useEffect(() => {
@@ -14,9 +17,21 @@ const NodeProperties = ({ selectedElement, updateElement }) => {
       setNewId(selectedElement.id || '');
       setNewName(selectedElement.label || '');
       setNewDescription(selectedElement.description || '');
-      setNewPosition(selectedElement.position || { x: 0, y: 0 });
+      setStartNodeId(selectedElement.source || '');
+      setEndNodeId(selectedElement.target || '');
     }
+    console.log(selectedElement);
   }, [selectedElement]);
+
+  useEffect(() => {
+    console.log('map data', mapData);
+    if (mapData) {
+
+      console.log(mapData);
+      setNodeOptions(mapData.layouts[0].nodes.map(node => ({ label: node.nodeName, id: node.nodeId })));
+    }
+  },
+  [mapData]);
 
   const handleBlur = (field, value) => {
     if (selectedElement) {
@@ -35,19 +50,19 @@ const NodeProperties = ({ selectedElement, updateElement }) => {
         </AccordionSummary>
         <AccordionDetails>
           <TextField
-            label="Node Id"
+            label="Edge Id"
             value={newId}
             onBlur={(e) => handleBlur('id', e.target.value)}
             fullWidth
             slotProps={{
-                input: {
-                  readOnly: true,
-                },
-              }}
+              input: {
+                readOnly: true,
+              },
+            }}
             margin="normal"
           />
           <TextField
-            label="Node Name"
+            label="Edge Name"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onBlur={(e) => handleBlur('id', e.target.value)}
@@ -55,30 +70,34 @@ const NodeProperties = ({ selectedElement, updateElement }) => {
             margin="normal"
           />
           <TextField
-            label="Node Description"
+            label="Edge Description"
             value={newDescription}
             onChange={(e) => setNewDescription(e.target.value)}
             onBlur={(e) => handleBlur('description', e.target.value)}
             fullWidth
             margin="normal"
             multiline
-            rows={3}
+            rows={4}
           />
-          <TextField
-            label="Node Position X"
-            type="number"
-            value={newPosition?.x}
-            onChange={(e) => setNewPosition({ ...newPosition, x: e.target.value })}
-            onBlur={(e) => handleBlur('position', { ...newPosition, x: e.target.value })}
+          <Autocomplete
+            value={startNodeId}
+            options={nodeOptions}
+            renderInput={(params) => <TextField {...params} label="Start Node" variant="standard" />}
+            onChange={(event, newValue) => {
+              setStartNodeId(newValue);
+            }}
+            disablePortal
             fullWidth
             margin="normal"
           />
-          <TextField
-            label="Node Position Y"
-            type="number"
-            value={newPosition?.y}
-            onChange={(e) => setNewPosition({ ...newPosition, y: e.target.value })}
-            onBlur={(e) => handleBlur('position', { ...newPosition, y: e.target.value })}
+          <Autocomplete
+            value={endNodeId}
+            options={nodeOptions}
+            renderInput={(params) => <TextField {...params} label="End Node" variant="standard" />}
+            onChange={(event, newValue) => {
+              setEndNodeId(newValue);
+            }}
+            disablePortal
             fullWidth
             margin="normal"
           />
@@ -87,4 +106,4 @@ const NodeProperties = ({ selectedElement, updateElement }) => {
   );
 };
 
-export default NodeProperties;
+export default EdgeProperties;

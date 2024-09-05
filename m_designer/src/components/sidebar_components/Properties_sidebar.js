@@ -1,4 +1,5 @@
 import NodeProperties from './NodeProperties_card';
+import EdgeProperties from './EdgeProperties_card';
 import ExportButton from './ExportButton';
 
 import { styled } from '@mui/system';
@@ -13,6 +14,7 @@ const PropertiesSidebarContainer = styled(Box)(({ theme }) => ({
 
 const PropertiesSidebar = ({ selectedElement, updateElement, mapData }) => {
   const isNode = selectedElement?.isNode();
+  const isEdge = selectedElement?.isEdge();
   const elementData = selectedElement?.data();
 
   return (
@@ -25,7 +27,19 @@ const PropertiesSidebar = ({ selectedElement, updateElement, mapData }) => {
           />
         )
       ) : (
-        "No element selected"
+        "No node selected"
+      )}
+
+      {selectedElement ? (
+        isEdge && (
+          <EdgeProperties
+            selectedElement={elementData}
+            updateElement={updateElement}
+            mapData={mapData}
+          />
+        )
+      ) : (
+        "No edge selected"
       )}
       <ExportButton mapData={mapData} />
     </PropertiesSidebarContainer>

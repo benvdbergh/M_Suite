@@ -11,17 +11,16 @@ const ToolPanelContainer = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
 }));
 
-const ToolButton = styled(IconButton)(({ theme, active }) => ({
+const ToolButton = styled(IconButton)(({ theme }) => ({
   background: 'none',
   border: 'none',
   cursor: 'pointer',
   padding: theme.spacing(1),
   fontSize: theme.typography.pxToRem(20),
-  color: active ? theme.palette.primary.main : theme.palette.text.secondary,
+  color: theme.palette.text.secondary,
   marginBottom: theme.spacing(1),
-  backgroundColor: active ? theme.palette.action.selected : 'transparent',
   '&:hover': {
-    backgroundColor: active ? theme.palette.action.selected : theme.palette.action.hover,
+    backgroundColor: theme.palette.action.hover,
   },
 }));
 
@@ -33,23 +32,32 @@ const ToolPanel = ({ selectedTool, setSelectedTool }) => {
   return (
     <ToolPanelContainer>
       <ToolButton
-        active={selectedTool === 'select'}
         onClick={() => handleToolChange('select')}
         title='select-tool-button'
+        sx={{
+          color: selectedTool === 'select' ? 'primary.main' : 'text.secondary',
+          backgroundColor: selectedTool === 'select' ? 'action.selected' : 'transparent',
+        }}
       >
         <MouseIcon />
       </ToolButton>
       <ToolButton
-        active={selectedTool === 'draw-node'}
         onClick={() => handleToolChange('draw-node')}
         title='draw-node-tool-button'
+        sx={{
+          color: selectedTool === 'draw-node' ? 'primary.main' : 'text.secondary',
+          backgroundColor: selectedTool === 'draw-node' ? 'action.selected' : 'transparent',
+        }}
       >
         <RadioButtonUncheckedIcon />
       </ToolButton>
       <ToolButton
-        active={selectedTool === 'draw-edge'}
         onClick={() => handleToolChange('draw-edge')}
         title='draw-edge-tool-button'
+        sx={{
+          color: selectedTool === 'draw-edge' ? 'primary.main' : 'text.secondary',
+          backgroundColor: selectedTool === 'draw-edge' ? 'action.selected' : 'transparent',
+        }}
       >
         <TimelineIcon />
       </ToolButton>
