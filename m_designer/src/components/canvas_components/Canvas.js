@@ -1,6 +1,5 @@
 import React from 'react';
 import { useCy } from '../../contexts/CytoContext';
-import { useTool } from '../../contexts/ToolContext';
 import ZoomControls from './ZoomControls';
 import { Box } from '@mui/material';
 import { styled } from '@mui/system';
@@ -13,7 +12,7 @@ const CanvasContainer = styled(Box)({
   flexDirection: 'column',
 });
 
-const CanvasBackground = styled(Box)({
+const CytoCanvas = styled(Box)({
   width: '100%',
   height: '100%',
   backgroundColor: '#fff',
@@ -25,7 +24,7 @@ const Canvas = () => {
 
   return (
     <CanvasContainer>
-      <CanvasBackground ref={cyRef}></CanvasBackground>
+      <CytoCanvas ref={cyRef}></CytoCanvas>
       <ZoomControls />
     </CanvasContainer>
   );
