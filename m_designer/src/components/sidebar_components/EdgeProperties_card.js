@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TextField, Typography, Accordion, AccordionSummary, AccordionDetails, Autocomplete } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const EdgeProperties = ({ selectedElement, updateElement, mapData }) => {
+const EdgeProperties = ({ selectedElement, updateElement, project: project }) => {
   const [newId, setNewId] = useState('');
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');
@@ -24,14 +24,14 @@ const EdgeProperties = ({ selectedElement, updateElement, mapData }) => {
   }, [selectedElement]);
 
   useEffect(() => {
-    console.log('map data', mapData);
-    if (mapData) {
+    console.log('map data', project);
+    if (project) {
 
-      console.log(mapData);
-      setNodeOptions(mapData.layouts[0].nodes.map(node => ({ label: node.nodeName, id: node.nodeId })));
+      console.log(project);
+      setNodeOptions(project.layouts[0].nodes.map(node => ({ label: node.nodeName, id: node.nodeId })));
     }
   },
-  [mapData]);
+  [project]);
 
   const handleBlur = (field, value) => {
     if (selectedElement) {

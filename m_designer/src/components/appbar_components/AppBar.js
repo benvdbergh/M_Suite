@@ -1,9 +1,14 @@
-import React from 'react';
-import { AppBar, Toolbar, IconButton, Typography, InputBase, Box, Button, Avatar } from '@mui/material';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+
+import { AppBar, Toolbar, IconButton, Typography, InputBase, Box, Button, Avatar, Menu, MenuItem } from '@mui/material';
 import { styled, alpha } from '@mui/system';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import AccountCircle from '@mui/icons-material/AccountCircle';
+
+import ExportButton from '../sidebar_components/ExportButton';
+import LayoutDropdown from './LayoutDropdown';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -45,6 +50,17 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 const AppBarComponent = () => {
+  const project = useSelector((state) => state.lif.project);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <AppBar position="static">
       <Toolbar>
@@ -52,10 +68,20 @@ const AppBarComponent = () => {
           Logo
         </Typography>
         <Box sx={{ display: { xs: 'none', md: 'flex' }, mr: 2 }}>
-          <Button color="inherit">File</Button>
+          <Button color="inherit" onClick={handleMenuOpen}>File</Button>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+          >
+            <MenuItem onClick={handleMenuClose}>
+              <ExportButton project={project} />
+            </MenuItem>
+          </Menu>
           <Button color="inherit">View</Button>
         </Box>
         <Box sx={{ flexGrow: 1 }} />
+        <LayoutDropdown />
         <Search>
           <SearchIconWrapper>
             <SearchIcon />

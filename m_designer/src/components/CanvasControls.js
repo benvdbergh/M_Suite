@@ -1,4 +1,5 @@
 import React from 'react';
+import { useCy } from '../contexts/CytoContext';
 import { IconButton, Box } from '@mui/material';
 import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap';
 import AddIcon from '@mui/icons-material/Add';
@@ -26,7 +27,27 @@ const CanvasControlsButton = styled(IconButton)(({ theme, active }) => ({
   },
 }));
 
-const CanvasControls = ({ fitToScreen, zoomIn, zoomOut }) => {
+const CanvasControls = () => {
+  const { cyInstance } = useCy();
+
+  const fitToScreen = () => {
+    if (cyInstance) {
+      cyInstance.fit();
+    }
+  };
+
+  const zoomIn = () => {
+    if (cyInstance) {
+      cyInstance.zoom(cyInstance.zoom() + 0.1);
+    }
+  };
+
+  const zoomOut = () => {
+    if (cyInstance) {
+      cyInstance.zoom(cyInstance.zoom() - 0.1);
+    }
+  };
+
   return (
     <CanvasControlsContainer>
       <CanvasControlsButton onClick={fitToScreen} title="Fit to Screen">
@@ -36,7 +57,7 @@ const CanvasControls = ({ fitToScreen, zoomIn, zoomOut }) => {
         <AddIcon />
       </CanvasControlsButton>
       <CanvasControlsButton onClick={zoomOut} title="Zoom Out">
-        <RemoveIcon/>
+        <RemoveIcon />
       </CanvasControlsButton>
     </CanvasControlsContainer>
   );

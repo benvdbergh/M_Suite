@@ -1,11 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { setProject, updateElement } from './redux/reducers/lifReducer';
+import initialProject from './interfaces/map.json';
+
+import { Box } from '@mui/material';
+import { styled } from '@mui/system';
+
 import Canvas from './components/Canvas';
 import ToolPanel from './components/ToolPanel';
 import PropertiesSidebar from './components/sidebar_components/Properties_sidebar';
-import AppBarComponent from './components/AppBar';
-import { Box } from '@mui/material';
-import { styled } from '@mui/system';
-import initialMapData from './interfaces/map.json';
+import AppBarComponent from './components/appbar_components/AppBar';
+import LayoutDropdown from './components/appbar_components/LayoutDropdown';
+
+import { CyProvider } from './contexts/CytoContext';
+import { ToolProvider } from './contexts/ToolContext';
+
+
 
 const AppContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -31,6 +41,8 @@ const ToolPanelContainer = styled(Box)(({ theme }) => ({
 const CanvasContainer = styled(Box)(({ theme }) => ({
   flex: 1,
   position: 'relative',
+  display: 'flex',
+  flexDirection: 'column',
 }));
 
 const SidebarContainer = styled(Box)(({ theme }) => ({
@@ -41,50 +53,33 @@ const SidebarContainer = styled(Box)(({ theme }) => ({
 }));
 
 const App = () => {
-  const [selectedTool, setSelectedTool] = useState('select');
-  const [selectedElement, setSelectedElement] = useState(null);
-  const [mapData, setMapData] = useState(initialMapData);
+  const dispatch = useDispatch();
 
-  const updateElement = (id, newData) => {
-    setMapData(prevMapData => {
-      const updatedNodes = prevMapData.layouts[0].nodes.map(node =>
-        node.nodeId === id ? { ...node, ...newData } : node
-      );
-      return {
-        ...prevMapData,
-        layouts: [
-          {
-            ...prevMapData.layouts[0],
-            nodes: updatedNodes,
-          },
-        ],
-      };
-    });
+  useEffect(() => {
+    dispatch(setProject(initialProject));
+  }, [dispatch]);
+
+  const updateElementHandler = (id, newData) => {
+    dispatch(updateElement({ id, newData }));
   };
 
   return (
     <AppContainer>
       <AppBarComponent />
       <MainContent>
-        <ToolPanelContainer>
-          <ToolPanel selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
-        </ToolPanelContainer>
-        <CanvasContainer>
-          <Canvas
-            selectedTool={selectedTool}
-            setSelectedElement={setSelectedElement}
-            mapData={mapData}
-            setMapData={setMapData}
-            updateElement={updateElement}
-          />
-        </CanvasContainer>
-        <SidebarContainer>
-          <PropertiesSidebar
-            selectedElement={selectedElement}
-            updateElement={updateElement}
-            mapData={mapData}
-          />
-        </SidebarContainer>
+        <ToolProvider>
+          <CyProvider layoutData={initialProject} updateElement={updateElementHandler}>
+            <ToolPanelContainer>
+              <ToolPanel />
+            </ToolPanelContainer>
+            <CanvasContainer>
+              <Canvas />
+            </CanvasContainer>
+            <SidebarContainer>
+              <PropertiesSidebar />
+            </SidebarContainer>
+          </CyProvider>
+        </ToolProvider>
       </MainContent>
     </AppContainer>
   );

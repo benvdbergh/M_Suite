@@ -21,7 +21,7 @@ const ExportButtonContainer = styled(Button)({
 });
 
 
-const ExportButton = ({ mapData }) => {
+const ExportButton = ({ project }) => {
     const handleExport = (event) => {
         event.stopPropagation();
 
@@ -30,8 +30,8 @@ const ExportButton = ({ mapData }) => {
             ...mapTemplate,
             layouts: mapTemplate.layouts.map(layout => ({
                 ...layout,
-                nodes: mapData.layouts[0].nodes,
-                edges: mapData.layouts[0].edges
+                nodes: project.layouts[0].nodes,
+                edges: project.layouts[0].edges
             }))
         };
 

@@ -5,6 +5,7 @@ import MouseIcon from '@mui/icons-material/Mouse';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import { styled } from '@mui/system';
+import { useTool } from '../contexts/ToolContext';
 
 const ToolPanelContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -24,7 +25,9 @@ const ToolButton = styled(IconButton)(({ theme }) => ({
   },
 }));
 
-const ToolPanel = ({ selectedTool, setSelectedTool }) => {
+const ToolPanel = () => {
+  const { selectedTool, setSelectedTool } = useTool();
+
   const handleToolChange = (tool) => {
     setSelectedTool(tool);
   };
