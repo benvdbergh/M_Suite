@@ -1,7 +1,7 @@
 import React from 'react';
-import { useCy } from '../contexts/CytoContext';
-import { useTool } from '../contexts/ToolContext';
-import CanvasControls from './CanvasControls';
+import { useCy } from '../../contexts/CytoContext';
+import { useTool } from '../../contexts/ToolContext';
+import ZoomControls from './ZoomControls';
 import { Box } from '@mui/material';
 import { styled } from '@mui/system';
 
@@ -26,7 +26,7 @@ const Canvas = () => {
   return (
     <CanvasContainer>
       <CanvasBackground ref={cyRef}></CanvasBackground>
-      <CanvasControls />
+      <ZoomControls />
     </CanvasContainer>
   );
 };

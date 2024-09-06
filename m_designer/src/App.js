@@ -6,8 +6,8 @@ import initialProject from './interfaces/map.json';
 import { Box } from '@mui/material';
 import { styled } from '@mui/system';
 
-import Canvas from './components/Canvas';
-import ToolPanel from './components/ToolPanel';
+import Canvas from './components/canvas_components/Canvas';
+import ToolPanel from './components/canvas_components/ToolPanel';
 import PropertiesSidebar from './components/sidebar_components/Properties_sidebar';
 import AppBarComponent from './components/appbar_components/AppBar';
 import LayoutDropdown from './components/appbar_components/LayoutDropdown';

@@ -1,12 +1,12 @@
 import React from 'react';
-import { useCy } from '../contexts/CytoContext';
+import { useCy } from '../../contexts/CytoContext';
 import { IconButton, Box } from '@mui/material';
 import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { styled } from '@mui/system';
 
-const CanvasControlsContainer = styled(Box)(({ theme }) => ({
+const ZoomControlsContainer = styled(Box)(({ theme }) => ({
   position: 'absolute',
   bottom: theme.spacing(1),
   right: theme.spacing(1),
@@ -14,7 +14,7 @@ const CanvasControlsContainer = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
 }));
 
-const CanvasControlsButton = styled(IconButton)(({ theme, active }) => ({
+const ZoomControlsButton = styled(IconButton)(({ theme, active }) => ({
   background: 'none',
   border: 'none',
   cursor: 'pointer',
@@ -27,7 +27,7 @@ const CanvasControlsButton = styled(IconButton)(({ theme, active }) => ({
   },
 }));
 
-const CanvasControls = () => {
+const ZoomControls = () => {
   const { cyInstance } = useCy();
 
   const fitToScreen = () => {
@@ -49,18 +49,18 @@ const CanvasControls = () => {
   };
 
   return (
-    <CanvasControlsContainer>
-      <CanvasControlsButton onClick={fitToScreen} title="Fit to Screen">
+    <ZoomControlsContainer>
+      <ZoomControlsButton onClick={fitToScreen} title="Fit to Screen">
         <ZoomOutMapIcon />
-      </CanvasControlsButton>
-      <CanvasControlsButton onClick={zoomIn} title="Zoom In">
+      </ZoomControlsButton>
+      <ZoomControlsButton onClick={zoomIn} title="Zoom In">
         <AddIcon />
-      </CanvasControlsButton>
-      <CanvasControlsButton onClick={zoomOut} title="Zoom Out">
+      </ZoomControlsButton>
+      <ZoomControlsButton onClick={zoomOut} title="Zoom Out">
         <RemoveIcon />
-      </CanvasControlsButton>
-    </CanvasControlsContainer>
+      </ZoomControlsButton>
+    </ZoomControlsContainer>
   );
 };
 
-export default CanvasControls;
+export default ZoomControls;
