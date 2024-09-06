@@ -100,8 +100,9 @@ export const CyProvider = ({ children, updateElement }) => {
       const newNodeData = {
         group: 'nodes',
         data: {
-          id: `node-${Date.now()}`,
-          label: 'New Node',
+          id: `node-${selectedLayout.nodes.length + 1}`,
+          label: `Node ${selectedLayout.nodes.length + 1}`,
+          description: '',
           position: { ...event.position }
         },
         position: { ...event.position }
