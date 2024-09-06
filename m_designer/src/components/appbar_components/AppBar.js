@@ -1,53 +1,12 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
-import { AppBar, Toolbar, IconButton, Typography, InputBase, Box, Button, Avatar, Menu, MenuItem } from '@mui/material';
-import { styled, alpha } from '@mui/system';
-import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
+import { AppBar, Toolbar, IconButton, Typography, Box, Button, Menu, MenuItem } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 
-import ExportButton from '../sidebar_components/ExportButton';
 import LayoutDropdown from './LayoutDropdown';
+import SearchBar from './SearchBar';
 
-const Search = styled('div')(({ theme }) => ({
-  position: 'relative',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  '&:hover': {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginLeft: 0,
-  width: '100%',
-  [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(1),
-    width: 'auto',
-  },
-}));
-
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: '100%',
-  position: 'absolute',
-  pointerEvents: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: 'inherit',
-  '& .MuiInputBase-input': {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: '20ch',
-    },
-  },
-}));
 
 const AppBarComponent = () => {
   const project = useSelector((state) => state.lif.project);
@@ -60,6 +19,27 @@ const AppBarComponent = () => {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+
+  const handleExport = (event) => {
+    const lifData = project;
+    // Convert the LIF data to a string
+    const lifString = JSON.stringify(lifData, null, 2);
+
+    // Create a Blob with the LIF data
+    const blob = new Blob([lifString], { type: 'application/json' });
+
+    // Create a URL for the Blob
+    const url = URL.createObjectURL(blob);
+
+    // Create a temporary anchor element to trigger the download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'map.json';
+    a.click();
+
+    // Revoke the URL to free up resources
+    URL.revokeObjectURL(url);
+};
 
   return (
     <AppBar position="static">
@@ -74,23 +54,13 @@ const AppBarComponent = () => {
             open={Boolean(anchorEl)}
             onClose={handleMenuClose}
           >
-            <MenuItem onClick={handleMenuClose}>
-              <ExportButton project={project} />
-            </MenuItem>
+            <MenuItem onClick={handleExport}></MenuItem>
           </Menu>
           <Button color="inherit">View</Button>
         </Box>
         <Box sx={{ flexGrow: 1 }} />
         <LayoutDropdown />
-        <Search>
-          <SearchIconWrapper>
-            <SearchIcon />
-          </SearchIconWrapper>
-          <StyledInputBase
-            placeholder="Search…"
-            inputProps={{ 'aria-label': 'search' }}
-          />
-        </Search>
+        <SearchBar />
         <IconButton edge="end" color="inherit">
           <AccountCircle />
         </IconButton>
