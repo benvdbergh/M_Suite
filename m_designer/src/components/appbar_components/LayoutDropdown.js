@@ -1,6 +1,8 @@
 import React from 'react';
-import { Select, MenuItem, Box } from '@mui/material';
+import { useSelector } from 'react-redux';
+import { Select, MenuItem } from '@mui/material';
 import { styled, alpha } from '@mui/system';
+import { useLayout } from '../../contexts/LayoutContext';
 
 const LayoutDropdownContainer = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -18,28 +20,35 @@ const LayoutDropdownContainer = styled('div')(({ theme }) => ({
 }));
 
 const LayoutDropdown = () => {
+  const project = useSelector((state) => state.lif.project);
+  const { selectedLayout, setSelectedLayout } = useLayout();
 
   const handleLayoutChange = (layoutId) => {
     if (layoutId === 'create-new') {
       // Handle creating a new layout
     } else {
-      // Handle changing to an existing layout
+      console.log('Changing to layout:', layoutId);
+      setSelectedLayout(project.layouts.find(layout => layout.layoutId === layoutId));
     }
   };
+
+  if (!project || !project.layouts) {
+    return null;
+  }
 
   return (
     <LayoutDropdownContainer>
       <Select
         onChange={(e) => handleLayoutChange(e.target.value)}
         fullWidth
-        defaultValue=""
+        value={selectedLayout ? selectedLayout.layoutId : ''}
         size='small'
       >
-        {/* {layouts.map((layout, index) => (
-          <MenuItem key={index} value={layout.layoutId}>
-            {layout.layoutName}
+        {project.layouts.map((layout, index) => (
+          <MenuItem key={index} value={layout?.layoutId}>
+            {layout?.layoutName}
           </MenuItem>
-        ))} */}
+        ))}
         <MenuItem value="create-new">Create New Layout</MenuItem>
       </Select>
     </LayoutDropdownContainer>

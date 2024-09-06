@@ -1,9 +1,16 @@
 import React, { createContext, useContext, useRef, useState, useEffect } from 'react';
 import cytoscape from 'cytoscape';
+import { useSelector } from 'react-redux';
+
 import { cytoscapeStyles, gridOptions, cxtMenuOptions } from './cyto-config';
 import { useDispatch } from 'react-redux';
 import { updateElement, addNode, addEdge } from '../redux/reducers/lifReducer';
+
 import { useTool } from './ToolContext';
+import { useLayout } from './LayoutContext';
+
+
+import Graph from '../components/graph_components/Graph';
 
 const CyContext = createContext();
 
@@ -13,32 +20,48 @@ var cxtmenu = require('cytoscape-cxtmenu');
 gridGuide(cytoscape);
 cxtmenu(cytoscape);
 
-export const CyProvider = ({ children, layoutData, updateElement }) => {
+export const CyProvider = ({ children, updateElement }) => {
   const cyRef = useRef(null);
   const [cyInstance, setCyInstance] = useState(null);
   const dispatch = useDispatch();
 
   const { selectedTool } = useTool();
+  const { selectedLayout } = useLayout();
+
+  const project = useSelector((state) => state.lif.project);
 
   useEffect(() => {
+    const get_cyto_layout = (layout) => {
+      if (layout && layout.nodes && layout.edges) {
+        const graph = new Graph(layout);
+        return graph.toCytoscape();
+      }
+      return [];    
+    };
+
     if (!cyInstance && cyRef.current) {
-      console.log('Initializing Cytoscape');
       const cy = cytoscape({
         container: cyRef.current,
-        elements: layoutData,
+        elements: get_cyto_layout(selectedLayout),
         style: cytoscapeStyles,
         layout: { name: 'preset' }
       });
       setCyInstance(cy);
     }
-  }, [cyInstance, layoutData, updateElement]);
+  }, [cyInstance, selectedLayout, updateElement]);
 
   useEffect(() => {
+    const get_cyto_layout = (layout) => {
+      if (layout && layout.nodes && layout.edges) {
+        const graph = new Graph(layout);
+        return graph.toCytoscape();
+      }
+      return [];
+    };
+
     if (cyInstance) {
-      console.log('Updating Cytoscape elements: ', layoutData);
       cyInstance.elements().remove();
-      cyInstance.json({ elements: layoutData });
-      console.log(cyInstance);
+      cyInstance.json({ elements: get_cyto_layout(selectedLayout) });
       cyInstance.style(cytoscapeStyles); 
 
       // Add event listeners for user interactions
@@ -48,8 +71,15 @@ export const CyProvider = ({ children, layoutData, updateElement }) => {
       
       cyInstance.gridGuide(gridOptions);
       cyInstance.cxtmenu(cxtMenuOptions(updateElement));
+
+      return () => {
+        cyInstance.removeListener('tap', 'node', handleNodeTap);
+        cyInstance.removeListener('tap', 'edge', handleEdgeTap);
+        cyInstance.removeListener('tap', handleCanvasLeftClick);
+      };
     }
-  }, [cyInstance, layoutData, updateElement]);
+
+  }, [cyInstance, selectedLayout, updateElement, selectedTool]); // Ensure selectedTool is a dependency
 
   const handleNodeTap = (event) => {
     const node = event.target;
@@ -64,9 +94,9 @@ export const CyProvider = ({ children, layoutData, updateElement }) => {
   };
 
   const handleCanvasLeftClick = (event) => {
-    console.log('Right-click on canvas');
-    if (event.target === cyInstance) {
-      // Handle right-click on canvas to create a new node
+    event.stopPropagation();
+    if (event.target === cyInstance && selectedTool === 'draw-node') {
+      console.log('Creating new node for: ', project );
       const newNodeData = {
         group: 'nodes',
         data: {
@@ -77,7 +107,8 @@ export const CyProvider = ({ children, layoutData, updateElement }) => {
         position: { ...event.position }
       };
       dispatch(addNode(newNodeData.data));
-      // cyInstance.add(newNodeData);
+      //cyInstance.add(newNodeData);
+      //console.log('cyInstance', cyInstance);
     }
   };
 

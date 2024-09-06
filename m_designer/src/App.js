@@ -10,12 +10,9 @@ import Canvas from './components/canvas_components/Canvas';
 import ToolPanel from './components/canvas_components/ToolPanel';
 import PropertiesSidebar from './components/sidebar_components/Properties_sidebar';
 import AppBarComponent from './components/appbar_components/AppBar';
-import LayoutDropdown from './components/appbar_components/LayoutDropdown';
 
 import { CyProvider } from './contexts/CytoContext';
 import { ToolProvider } from './contexts/ToolContext';
-
-
 
 const AppContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -64,24 +61,24 @@ const App = () => {
   };
 
   return (
-    <AppContainer>
-      <AppBarComponent />
-      <MainContent>
-        <ToolProvider>
-          <CyProvider layoutData={initialProject} updateElement={updateElementHandler}>
-            <ToolPanelContainer>
-              <ToolPanel />
-            </ToolPanelContainer>
-            <CanvasContainer>
-              <Canvas />
-            </CanvasContainer>
-            <SidebarContainer>
-              <PropertiesSidebar />
-            </SidebarContainer>
-          </CyProvider>
-        </ToolProvider>
-      </MainContent>
-    </AppContainer>
+      <AppContainer>
+        <AppBarComponent />
+        <MainContent>
+          <ToolProvider>
+            <CyProvider updateElement={updateElementHandler}>
+              <ToolPanelContainer>
+                <ToolPanel />
+              </ToolPanelContainer>
+              <CanvasContainer>
+                <Canvas />
+              </CanvasContainer>
+              <SidebarContainer>
+                <PropertiesSidebar />
+              </SidebarContainer>
+            </CyProvider>
+          </ToolProvider>
+        </MainContent>
+      </AppContainer>
   );
 };
 

@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   project: null,
+  selectedLayout: null,
 };
 
 const lifSlice = createSlice({
@@ -9,8 +10,10 @@ const lifSlice = createSlice({
   initialState,
   reducers: {
     setProject(state, action) {
-      console.log('setProject called with payload:', action.payload);
       state.project = action.payload;
+      if (action.payload.layouts && action.payload.layouts.length > 0) {
+        state.selectedLayout = action.payload.layouts[0];
+      }
     },
     updateElement(state, action) {
       const { id, newData } = action.payload;
@@ -21,17 +24,32 @@ const lifSlice = createSlice({
       state.project.layouts[0].nodes = updatedNodes;
     },
     addNode(state, action) {
-      console.log('addNode called with payload:', action.payload);
       const newNode = action.payload;
-      state.project.layouts[0].nodes.push(newNode);
+
+      const selectedLayout = state.selectedLayout;
+
+      const updatedLayout = {
+        ...selectedLayout,
+        nodes: [...selectedLayout.nodes, newNode],
+      };
+
+      const updatedLayouts = state.project.layouts.map(layout =>
+        layout.layoutId === selectedLayout.layoutId ? updatedLayout : layout
+      );
+
+      state.project = { ...state.project, layouts: updatedLayouts };
+      state.selectedLayout = updatedLayout;
     },
     addEdge(state, action) {
       console.log('addEdge called with payload:', action.payload);
       const newEdge = action.payload;
       state.project.layouts[0].edges.push(newEdge);
     },
+    setSelectedLayout(state, action) {
+      state.selectedLayout = action.payload;
+    },
   },
 });
 
-export const { setProject, updateElement, addNode, addEdge } = lifSlice.actions;
+export const { setProject, updateElement, addNode, addEdge, setSelectedLayout } = lifSlice.actions;
 export default lifSlice.reducer;

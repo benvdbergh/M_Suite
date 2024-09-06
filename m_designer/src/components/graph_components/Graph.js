@@ -2,23 +2,38 @@
 import Node from './Node';
 import Edge from './Edge';
 
-export class Graph {
-  constructor(mapData) {
-    this.nodes = mapData.layouts[0].nodes.map(nodeData => new Node(nodeData));
-    this.edges = this.processEdges(mapData.layouts[0].edges);
+export default class Graph {
+  constructor(layout) {
+    if (layout) {
+      if (layout.nodes) {
+        this.nodes = layout.nodes.map(nodeData => new Node(nodeData));
+      }
+      if (layout.edges) {
+        this.edges = this.processEdges(layout.edges);
+      }
+    }
+    else {
+      this.nodes = [];
+      this.edges = [];
+    }
+
+    console.log('Graph constructor created with nodes:', this.nodes);
   }
   
   processEdges(edgesData) {
     const edgeMap = new Map();
-    edgesData.forEach(edgeData => {
-      const edgeKey = [edgeData.startNodeId, edgeData.endNodeId].sort().join('-');
-      if (!edgeMap.has(edgeKey)) {
-        edgeMap.set(edgeKey, new Edge(edgeData));
-      } else {
-        edgeMap.get(edgeKey).bidirectional = true;
-      }
-    });
-    return Array.from(edgeMap.values());
+    if (edgesData) {
+      edgesData.forEach(edgeData => {
+        const edgeKey = [edgeData.startNodeId, edgeData.endNodeId].sort().join('-');
+        if (!edgeMap.has(edgeKey)) {
+          edgeMap.set(edgeKey, new Edge(edgeData));
+        } else {
+          edgeMap.get(edgeKey).bidirectional = true;
+        }
+      });
+      return Array.from(edgeMap.values());
+    }
+    return [];
   }
 
   addNode(nodeData) {
@@ -45,10 +60,21 @@ export class Graph {
   }
 
   toCytoscape() {
-    return [
-      ...this.nodes.map(node => node.toCytoscape()),
-      ...this.edges.map(edge => edge.toCytoscape()),
-    ];
+    console.log('toCytoscape called with this.nodes:', this.nodes);
+
+    if (this.nodes && this.edges) {
+      return [
+        ...this.nodes.map(node => {
+          const nodeData = node.toCytoscape();
+          return {
+            ...nodeData,
+            position: { ...nodeData.position } // Create a deep copy of the position object
+          };
+        }),
+        ...this.edges.map(edge => edge.toCytoscape()),
+      ];
+    }
+    return [];
   }
 
   toMapData() {
