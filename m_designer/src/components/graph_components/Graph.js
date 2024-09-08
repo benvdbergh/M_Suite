@@ -17,21 +17,23 @@ export default class Graph {
       this.edges = [];
     }
 
-    console.log('Graph constructor created with nodes:', this.nodes);
+    // console.log('Graph constructor created with nodes:', this.nodes);
   }
   
   processEdges(edgesData) {
+    console.log('processEdges called with edgesData:', edgesData);
     const edgeMap = new Map();
     if (edgesData) {
       edgesData.forEach(edgeData => {
-        const edgeKey = [edgeData.startNodeId, edgeData.endNodeId].sort().join('-');
-        if (!edgeMap.has(edgeKey)) {
-          edgeMap.set(edgeKey, new Edge(edgeData));
-        } else {
-          edgeMap.get(edgeKey).bidirectional = true;
+        const existingEdge = Array.from(edgeMap.values()).find(edge =>
+          (edge.source === edgeData.source && edge.target === edgeData.target)
+        );
+
+        if (!existingEdge) {
+          edgeMap.set(edgeData.id, new Edge(edgeData));
         }
-      });
-      return Array.from(edgeMap.values());
+    });
+    return Array.from(edgeMap.values());
     }
     return [];
   }
@@ -60,7 +62,7 @@ export default class Graph {
   }
 
   toCytoscape() {
-    console.log('toCytoscape called with this.nodes:', this.nodes);
+    // console.log('toCytoscape called with this.nodes:', this.nodes);
 
     if (this.nodes && this.edges) {
       return [

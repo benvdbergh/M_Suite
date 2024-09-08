@@ -6,6 +6,7 @@ import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import { styled } from '@mui/system';
 import { useTool } from '../../contexts/ToolContext';
+import ToolTypes from '../../constants/ToolTypes';
 
 const ToolPanelContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -35,34 +36,34 @@ const ToolPanel = () => {
   return (
     <ToolPanelContainer>
       <ToolButton
-        onClick={() => handleToolChange('select')}
+        onClick={() => handleToolChange(ToolTypes.SELECT)}
         title='select-tool-button'
         sx={{
-          color: selectedTool === 'select' ? 'primary.main' : 'text.secondary',
-          backgroundColor: selectedTool === 'select' ? 'action.selected' : 'transparent',
+          color: selectedTool === ToolTypes.SELECT ? 'primary.main' : 'text.secondary',
+          backgroundColor: selectedTool === ToolTypes.SELECT ? 'action.selected' : 'transparent',
         }}
       >
         <MouseIcon />
       </ToolButton>
       <ToolButton
-        onClick={() => handleToolChange('draw-node')}
-        title='draw-node-tool-button'
+        onClick={() => handleToolChange(ToolTypes.DRAW_PATH)}
+        title='draw-path-tool-button'
         sx={{
-          color: selectedTool === 'draw-node' ? 'primary.main' : 'text.secondary',
-          backgroundColor: selectedTool === 'draw-node' ? 'action.selected' : 'transparent',
-        }}
-      >
-        <RadioButtonUncheckedIcon />
-      </ToolButton>
-      <ToolButton
-        onClick={() => handleToolChange('draw-edge')}
-        title='draw-edge-tool-button'
-        sx={{
-          color: selectedTool === 'draw-edge' ? 'primary.main' : 'text.secondary',
-          backgroundColor: selectedTool === 'draw-edge' ? 'action.selected' : 'transparent',
+          color: selectedTool === ToolTypes.DRAW_PATH ? 'primary.main' : 'text.secondary',
+          backgroundColor: selectedTool === ToolTypes.DRAW_PATH ? 'action.selected' : 'transparent',
         }}
       >
         <TimelineIcon />
+      </ToolButton>
+      <ToolButton
+        onClick={() => handleToolChange(ToolTypes.DRAW_NODE)}
+        title='draw-node-tool-button'
+        sx={{
+          color: selectedTool === ToolTypes.DRAW_NODE ? 'primary.main' : 'text.secondary',
+          backgroundColor: selectedTool === ToolTypes.DRAW_NODE ? 'action.selected' : 'transparent',
+        }}
+      >
+        <RadioButtonUncheckedIcon />
       </ToolButton>
     </ToolPanelContainer>
   );

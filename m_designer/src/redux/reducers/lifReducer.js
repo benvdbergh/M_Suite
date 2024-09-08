@@ -43,7 +43,16 @@ const lifSlice = createSlice({
     addEdge(state, action) {
       console.log('addEdge called with payload:', action.payload);
       const newEdge = action.payload;
-      state.project.layouts[0].edges.push(newEdge);
+      const selectedLayout = state.selectedLayout;
+      const updatedLayout = {
+        ...selectedLayout,
+        edges: [...selectedLayout.edges, newEdge],
+      };
+      const updatedLayouts = state.project.layouts.map(layout =>
+        layout.layoutId === selectedLayout.layoutId ? updatedLayout : layout
+      );
+      state.project = { ...state.project, layouts: updatedLayouts };
+      state.selectedLayout = updatedLayout;
     },
     setSelectedLayout(state, action) {
       state.selectedLayout = action.payload;

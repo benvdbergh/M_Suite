@@ -11,6 +11,7 @@ import { useLayout } from './LayoutContext';
 
 
 import Graph from '../components/graph_components/Graph';
+import ToolTypes from '../constants/ToolTypes'; 
 
 const CyContext = createContext();
 
@@ -23,6 +24,7 @@ cxtmenu(cytoscape);
 export const CyProvider = ({ children, updateElement }) => {
   const cyRef = useRef(null);
   const [cyInstance, setCyInstance] = useState(null);
+  const [lastNode, setLastNode] = useState(null);
   const dispatch = useDispatch();
 
   const { selectedTool } = useTool();
@@ -68,6 +70,7 @@ export const CyProvider = ({ children, updateElement }) => {
       cyInstance.on('tap', 'node', handleNodeTap);
       cyInstance.on('tap', 'edge', handleEdgeTap);
       cyInstance.on('tap', handleCanvasLeftClick);
+      cyInstance.on('dragfree', 'node', handleNodeTap);
       
       cyInstance.gridGuide(gridOptions);
       cyInstance.cxtmenu(cxtMenuOptions(updateElement));
@@ -79,7 +82,7 @@ export const CyProvider = ({ children, updateElement }) => {
       };
     }
 
-  }, [cyInstance, selectedLayout, updateElement, selectedTool]); // Ensure selectedTool is a dependency
+  }, [cyInstance, selectedLayout, updateElement, selectedTool]);
 
   const handleNodeTap = (event) => {
     const node = event.target;
@@ -95,7 +98,7 @@ export const CyProvider = ({ children, updateElement }) => {
 
   const handleCanvasLeftClick = (event) => {
     event.stopPropagation();
-    if (event.target === cyInstance && selectedTool === 'draw-node') {
+    if (event.target === cyInstance && (selectedTool === ToolTypes.DRAW_NODE || selectedTool === ToolTypes.DRAW_PATH)) {
       console.log('Creating new node for: ', project );
       const newNodeData = {
         group: 'nodes',
@@ -108,8 +111,47 @@ export const CyProvider = ({ children, updateElement }) => {
         position: { ...event.position }
       };
       dispatch(addNode(newNodeData.data));
-      //cyInstance.add(newNodeData);
-      //console.log('cyInstance', cyInstance);
+
+      if (selectedTool === ToolTypes.DRAW_PATH) {
+        console.log('lastNode: ', lastNode);
+        if (lastNode) {
+          console.log('newNodeData:', newNodeData);
+          if (lastNode.data && newNodeData.data) {
+            const newEdgeData = {
+              group: 'edges',
+              data: {
+                id: `edge-${selectedLayout.edges.length + 1}`,
+                source: lastNode.data.id,
+                target: newNodeData.data.id,
+                label: `Edge ${selectedLayout.edges.length + 1}`,
+                description: '',
+              },
+            };
+          dispatch(addEdge(newEdgeData.data));
+          };
+        }
+        setLastNode(newNodeData);
+      }
+    }
+  };
+
+  const handleCanvasDragFree = (event) => {
+    event.stopPropagation();
+    if (event.target === cyInstance && selectedTool === 'draw-edge') {
+      console.log('Creating new edge for: ', project );
+      const newEdgeData = {
+        group: 'edges',
+        data: {
+          id: `edge-${selectedLayout.edges.length + 1}`,
+          source: `node-${selectedLayout.nodes.length + 1}`,
+          target: `node-${selectedLayout.nodes.length + 2}`,
+          label: `Edge ${selectedLayout.edges.length + 1}`,
+          description: '',
+          position: { ...event.position }
+        },
+        position: { ...event.position }
+      };
+      dispatch(addEdge(newEdgeData.data));
     }
   };
 

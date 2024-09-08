@@ -1,11 +1,12 @@
 // Edge.js
 export default class Edge {
   constructor(data) {
-    this.id = data.edgeId;
-    this.source = data.startNodeId;
-    this.target = data.endNodeId;
-    this.label = data.edgeName;
-    this.description = data.edgeDescription;
+    console.log('Edge constructor called with data:', data);
+    this.id = data.id;
+    this.source = data.source;
+    this.target = data.target;
+    this.label = data.label;
+    this.description = data.description;
     this.bidirectional = data.bidirectional || false;
   }
 

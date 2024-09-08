@@ -1,7 +1,7 @@
 
 export default class Node {
   constructor(data) {
-    console.log('Node constructor called with data:', data);
+    // console.log('Node constructor called with data:', data);
     this.id = data.id;
     this.label = data.label;
     this.description = data.description;
