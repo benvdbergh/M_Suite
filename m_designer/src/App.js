@@ -1,7 +1,4 @@
-import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { setProject } from './redux/reducers/lifReducer';
-import initialProject from './interfaces/map.json';
+import React from 'react';
 
 import { Box } from '@mui/material';
 import { styled } from '@mui/system';
@@ -50,12 +47,6 @@ const SidebarContainer = styled(Box)(({ theme }) => ({
 }));
 
 const App = () => {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(setProject(initialProject));
-  }, [dispatch]);
-
   return (
       <AppContainer>
         <AppBarComponent />

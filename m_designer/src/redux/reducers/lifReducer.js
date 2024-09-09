@@ -1,8 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
+import initialProject from '../../interfaces/map.json';
 
 const initialState = {
-  project: null,
-  selectedLayout: null,
+  project: initialProject,
+  selectedLayout: initialProject.layouts[0] || null,
 };
 
 const lifSlice = createSlice({
