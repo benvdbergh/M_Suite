@@ -15,7 +15,7 @@ const lifSlice = createSlice({
         state.selectedLayout = action.payload.layouts[0];
       }
     },
-    updateElement(state, action) {
+    updateNodePosition(state, action) {
       const { id, newData } = action.payload;
       console.log('updateElement called with id:', id, 'and newData:', newData);
       const updatedNodes = state.project.layouts[0].nodes.map(node =>
@@ -60,5 +60,5 @@ const lifSlice = createSlice({
   },
 });
 
-export const { setProject, updateElement, addNode, addEdge, setSelectedLayout } = lifSlice.actions;
+export const { setProject, updateNodePosition, addNode, addEdge, setSelectedLayout } = lifSlice.actions;
 export default lifSlice.reducer;

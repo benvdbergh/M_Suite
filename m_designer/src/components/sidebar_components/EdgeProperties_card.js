@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TextField, Typography, Accordion, AccordionSummary, AccordionDetails, Autocomplete } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const EdgeProperties = ({ selectedElement, updateElement, project: project }) => {
+const EdgeProperties = ({ selectedElement, updateElement, project }) => {
   const [newId, setNewId] = useState('');
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');

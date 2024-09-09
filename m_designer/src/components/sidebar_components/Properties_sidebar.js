@@ -1,10 +1,9 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import NodeProperties from './NodeProperties_card';
 import EdgeProperties from './EdgeProperties_card';
 import { styled } from '@mui/system';
 import { Box } from '@mui/material';
-import { updateElement } from '../../redux/reducers/lifReducer';
 
 const PropertiesSidebarContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -16,10 +15,9 @@ const PropertiesSidebarContainer = styled(Box)(({ theme }) => ({
 const PropertiesSidebar = () => {
   const selectedElement = useSelector((state) => state.lif.selectedElement);
   const project = useSelector((state) => state.lif.project);
-  const dispatch = useDispatch();
 
   const handleElementUpdate = (id, newData) => {
-    dispatch(updateElement({ id, newData }));
+    // dispatch(updateElement({ id, newData }));
   };
 
   return (

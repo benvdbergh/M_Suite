@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { setProject, updateElement } from './redux/reducers/lifReducer';
+import { setProject } from './redux/reducers/lifReducer';
 import initialProject from './interfaces/map.json';
 
 import { Box } from '@mui/material';
@@ -56,16 +56,12 @@ const App = () => {
     dispatch(setProject(initialProject));
   }, [dispatch]);
 
-  const updateElementHandler = (id, newData) => {
-    dispatch(updateElement({ id, newData }));
-  };
-
   return (
       <AppContainer>
         <AppBarComponent />
         <MainContent>
           <ToolProvider>
-            <CyProvider updateElement={updateElementHandler}>
+            <CyProvider>
               <ToolPanelContainer>
                 <ToolPanel />
               </ToolPanelContainer>

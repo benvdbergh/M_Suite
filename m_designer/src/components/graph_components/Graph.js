@@ -78,40 +78,4 @@ export default class Graph {
     }
     return [];
   }
-
-  toMapData() {
-    const edgesData = [];
-    this.edges.forEach(edge => {
-      edgesData.push({
-        edgeId: edge.id,
-        edgeName: edge.label,
-        edgeDescription: edge.description,
-        startNodeId: edge.source,
-        endNodeId: edge.target,
-      });
-      if (edge.bidirectional) {
-        edgesData.push({
-          edgeId: `${edge.id}-reverse`,
-          edgeName: edge.label,
-          edgeDescription: edge.description,
-          startNodeId: edge.target,
-          endNodeId: edge.source,
-        });
-      }
-    });
-
-    return {
-      layouts: [
-        {
-          nodes: this.nodes.map(node => ({
-            nodeId: node.id,
-            nodeName: node.label,
-            nodeDescription: node.description,
-            nodePosition: node.position,
-          })),
-          edges: edgesData,
-        },
-      ],
-    };
-  }
 }

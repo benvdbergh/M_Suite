@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 
 import { cytoscapeStyles, gridOptions, cxtMenuOptions } from './cyto-config';
 import { useDispatch } from 'react-redux';
-import { updateElement, addNode, addEdge } from '../redux/reducers/lifReducer';
+import { updateNodePosition, addNode, addEdge } from '../redux/reducers/lifReducer';
 
 import { useTool } from './ToolContext';
 import { useLayout } from './LayoutContext';
@@ -21,7 +21,7 @@ var cxtmenu = require('cytoscape-cxtmenu');
 gridGuide(cytoscape);
 cxtmenu(cytoscape);
 
-export const CyProvider = ({ children, updateElement }) => {
+export const CyProvider = ({ children }) => {
   const cyRef = useRef(null);
   const [cyInstance, setCyInstance] = useState(null);
   const [lastNode, setLastNode] = useState(null);
@@ -50,7 +50,7 @@ export const CyProvider = ({ children, updateElement }) => {
       });
       setCyInstance(cy);
     }
-  }, [cyInstance, selectedLayout, updateElement]);
+  }, [cyInstance, selectedLayout ]);
 
   useEffect(() => {
     const get_cyto_layout = (layout) => {
@@ -73,7 +73,7 @@ export const CyProvider = ({ children, updateElement }) => {
       cyInstance.on('dragfree', 'node', handleNodeTap);
       
       cyInstance.gridGuide(gridOptions);
-      cyInstance.cxtmenu(cxtMenuOptions(updateElement));
+      // cyInstance.cxtmenu(cxtMenuOptions(updateElement));
 
       return () => {
         cyInstance.removeListener('tap', 'node', handleNodeTap);
@@ -82,7 +82,7 @@ export const CyProvider = ({ children, updateElement }) => {
       };
     }
 
-  }, [cyInstance, selectedLayout, updateElement, selectedTool]);
+  }, [cyInstance, selectedLayout, selectedTool]);
 
   const handleNodeTap = (event) => {
     const node = event.target;
@@ -137,21 +137,11 @@ export const CyProvider = ({ children, updateElement }) => {
 
   const handleCanvasDragFree = (event) => {
     event.stopPropagation();
-    if (event.target === cyInstance && selectedTool === 'draw-edge') {
-      console.log('Creating new edge for: ', project );
-      const newEdgeData = {
-        group: 'edges',
-        data: {
-          id: `edge-${selectedLayout.edges.length + 1}`,
-          source: `node-${selectedLayout.nodes.length + 1}`,
-          target: `node-${selectedLayout.nodes.length + 2}`,
-          label: `Edge ${selectedLayout.edges.length + 1}`,
-          description: '',
-          position: { ...event.position }
-        },
-        position: { ...event.position }
-      };
-      dispatch(addEdge(newEdgeData.data));
+    if ( event.target.isNode()) {
+      const draggedNode = event.target;
+      console.log('Dragged node:', draggedNode.id());
+      const newPosition = draggedNode.position();
+      dispatch(updateNodePosition({ id: draggedNode.id(), newData: { position: newPosition } }));
     }
   };
 
