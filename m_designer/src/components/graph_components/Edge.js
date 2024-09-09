@@ -1,7 +1,7 @@
 // Edge.js
 export default class Edge {
   constructor(data) {
-    console.log('Edge constructor called with data:', data);
+    // console.log('Edge constructor called with data:', data);
     this.id = data.id;
     this.source = data.source;
     this.target = data.target;

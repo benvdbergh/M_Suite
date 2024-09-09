@@ -70,7 +70,7 @@ export const CyProvider = ({ children }) => {
       cyInstance.on('tap', 'node', handleNodeTap);
       cyInstance.on('tap', 'edge', handleEdgeTap);
       cyInstance.on('tap', handleCanvasLeftClick);
-      cyInstance.on('dragfree', 'node', handleNodeTap);
+      cyInstance.on('free', 'node', handleCanvasDragFree);
       
       cyInstance.gridGuide(gridOptions);
       // cyInstance.cxtmenu(cxtMenuOptions(updateElement));
@@ -79,6 +79,7 @@ export const CyProvider = ({ children }) => {
         cyInstance.removeListener('tap', 'node', handleNodeTap);
         cyInstance.removeListener('tap', 'edge', handleEdgeTap);
         cyInstance.removeListener('tap', handleCanvasLeftClick);
+        cyInstance.removeListener('free', 'node', handleCanvasDragFree);
       };
     }
 
@@ -137,11 +138,12 @@ export const CyProvider = ({ children }) => {
 
   const handleCanvasDragFree = (event) => {
     event.stopPropagation();
+    console.log('handleCanvasDragFree called with event:', event);
     if ( event.target.isNode()) {
       const draggedNode = event.target;
       console.log('Dragged node:', draggedNode.id());
       const newPosition = draggedNode.position();
-      dispatch(updateNodePosition({ id: draggedNode.id(), newData: { position: newPosition } }));
+      dispatch(updateNodePosition({ id: draggedNode.id(), newPosition: newPosition }));
     }
   };
 

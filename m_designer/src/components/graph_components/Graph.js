@@ -21,7 +21,7 @@ export default class Graph {
   }
   
   processEdges(edgesData) {
-    console.log('processEdges called with edgesData:', edgesData);
+    // console.log('processEdges called with edgesData:', edgesData);
     const edgeMap = new Map();
     if (edgesData) {
       edgesData.forEach(edgeData => {

@@ -16,12 +16,33 @@ const lifSlice = createSlice({
       }
     },
     updateNodePosition(state, action) {
-      const { id, newData } = action.payload;
-      console.log('updateElement called with id:', id, 'and newData:', newData);
-      const updatedNodes = state.project.layouts[0].nodes.map(node =>
-        node.nodeId === id ? { ...node, ...newData } : node
+      const { id, newPosition } = action.payload;
+      const selectedLayout = state.selectedLayout;
+
+      if (!selectedLayout || !selectedLayout.nodes) {
+        console.error('Selected layout or nodes are not defined');
+        return;
+      }
+  
+      const nodeExists = selectedLayout.nodes.some(node => node.id === id);
+      if (!nodeExists) {
+        console.error(`Node with id ${id} does not exist in the selected layout`);
+        return;
+      }
+  
+      const updatedLayout = {
+        ...selectedLayout,
+        nodes: selectedLayout.nodes.map(node =>
+          node.id === id ? { ...node, position: { ...newPosition } } : node
+        ),
+      };
+  
+      const updatedLayouts = state.project.layouts.map(layout =>
+        layout.layoutId === selectedLayout.layoutId ? updatedLayout : layout
       );
-      state.project.layouts[0].nodes = updatedNodes;
+  
+      state.project = { ...state.project, layouts: updatedLayouts };
+      state.selectedLayout = updatedLayout;
     },
     addNode(state, action) {
       const newNode = action.payload;
@@ -41,7 +62,7 @@ const lifSlice = createSlice({
       state.selectedLayout = updatedLayout;
     },
     addEdge(state, action) {
-      console.log('addEdge called with payload:', action.payload);
+      // console.log('addEdge called with payload:', action.payload);
       const newEdge = action.payload;
       const selectedLayout = state.selectedLayout;
       const updatedLayout = {
