@@ -29,7 +29,7 @@ export default class Graph {
           (edge.source === edgeData.source && edge.target === edgeData.target)
         );
 
-        if (!existingEdge) {
+        if (!existingEdge && edgeData.source && edgeData.target) {
           edgeMap.set(edgeData.id, new Edge(edgeData));
         }
     });
@@ -75,7 +75,7 @@ export default class Graph {
         }),
         ...this.edges.map(edge => edge.toCytoscape()),
       ];
-    }
+    } 
     return [];
   }
 }

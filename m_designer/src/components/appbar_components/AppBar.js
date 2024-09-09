@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { AppBar, Toolbar, IconButton, Typography, Box, Button, Menu, MenuItem } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 
+import { setNewProject } from '../../redux/reducers/lifReducer';
+
 import LayoutDropdown from './LayoutDropdown';
 import SearchBar from './SearchBar';
+import ConfirmDialog from '../util_components/ConfirmDialog';
 
 
 const AppBarComponent = () => {
   const project = useSelector((state) => state.lif.project);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const dispatch = useDispatch();
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -39,7 +44,25 @@ const AppBarComponent = () => {
 
     // Revoke the URL to free up resources
     URL.revokeObjectURL(url);
-};
+
+    handleMenuClose();
+  };
+
+  const handleNewProject = () => {
+    setDialogOpen(true);
+  };
+
+  const handleConfirmNewProject = () => {
+    dispatch(setNewProject());
+    setDialogOpen(false);
+    handleMenuClose();
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    handleMenuClose();
+  };
+
 
   return (
     <AppBar position="static">
@@ -48,13 +71,14 @@ const AppBarComponent = () => {
           Logo
         </Typography>
         <Box sx={{ display: { xs: 'none', md: 'flex' }, mr: 2 }}>
-          <Button color="inherit" onClick={handleMenuOpen}>File</Button>
+          <Button color="inherit" onClick={handleMenuOpen}>Project</Button>
           <Menu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
             onClose={handleMenuClose}
           >
-            <MenuItem onClick={handleExport}></MenuItem>
+            <MenuItem onClick={handleExport}>Export</MenuItem>
+            <MenuItem onClick={handleNewProject}>New Project</MenuItem>
           </Menu>
           <Button color="inherit">View</Button>
         </Box>
@@ -65,6 +89,13 @@ const AppBarComponent = () => {
           <AccountCircle />
         </IconButton>
       </Toolbar>
+      <ConfirmDialog
+        open={dialogOpen}
+        message="Are you sure you want to start a new project? Unsaved changes will be lost."
+        handleConfirm={handleConfirmNewProject}
+        handleClose={handleCloseDialog}
+        handleNo={handleCloseDialog}
+      />
     </AppBar>
   );
 };

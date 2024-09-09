@@ -2,7 +2,8 @@ import React, { createContext, useContext, useRef, useState, useEffect } from 'r
 import cytoscape from 'cytoscape';
 import { useSelector } from 'react-redux';
 
-import { cytoscapeStyles, gridOptions, cxtMenuOptions } from './cyto-config';
+// import { cytoscapeStyles, gridOptions, cxtMenuOptions } from './cyto-config';
+import { cytoscapeStyles, gridOptions } from './cyto-config';
 import { useDispatch } from 'react-redux';
 import { updateNodePosition, addNode, addEdge } from '../redux/reducers/lifReducer';
 
@@ -63,6 +64,7 @@ export const CyProvider = ({ children }) => {
 
     if (cyInstance) {
       cyInstance.elements().remove();
+      console.log('get_cyto_layout(selectedLayout):', get_cyto_layout(selectedLayout));
       cyInstance.json({ elements: get_cyto_layout(selectedLayout) });
       cyInstance.style(cytoscapeStyles); 
 
@@ -128,7 +130,7 @@ export const CyProvider = ({ children }) => {
                 description: '',
               },
             };
-          dispatch(addEdge(newEdgeData.data));
+            dispatch(addEdge(newEdgeData.data));
           };
         }
         setLastNode(newNodeData);

@@ -10,6 +10,10 @@ const lifSlice = createSlice({
   name: 'lif',
   initialState,
   reducers: {
+    setNewProject(state, action) {      
+      state.project = initialProject;
+      state.selectedLayout = initialProject.layouts[0] || null;
+    },
     setProject(state, action) {
       state.project = action.payload;
       if (action.payload.layouts && action.payload.layouts.length > 0) {
@@ -82,5 +86,5 @@ const lifSlice = createSlice({
   },
 });
 
-export const { setProject, updateNodePosition, addNode, addEdge, setSelectedLayout } = lifSlice.actions;
+export const { setNewProject, setProject, updateNodePosition, addNode, addEdge, setSelectedLayout } = lifSlice.actions;
 export default lifSlice.reducer;
