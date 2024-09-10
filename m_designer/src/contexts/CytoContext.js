@@ -69,13 +69,13 @@ export const CyProvider = ({ children }) => {
             case ToolTypes.DRAW_PATH:
               if (lastNode) {
                 if (lastNode.data && node.data()) {
-                  console.log("Closing the path to node: ", node.data.id);
+                  console.log("Closing the path to node: ", node.id());
                   const newEdgeData = {
                     group: 'edges',
                     data: {
                       id: `edge-${selectedLayout.edges.length + 1}`,
                       source: lastNode.data.id,
-                      target: node.data.id,
+                      target: node.id(),
                       label: `Edge ${selectedLayout.edges.length + 1}`,
                       description: '',
                     },
