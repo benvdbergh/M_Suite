@@ -4,6 +4,9 @@ import Edge from './Edge';
 
 export default class Graph {
   constructor(layout) {
+    this.nodes = [];
+    this.edges = [];
+    
     if (layout) {
       if (layout.nodes) {
         this.nodes = layout.nodes.map(nodeData => new Node(nodeData));
@@ -11,10 +14,6 @@ export default class Graph {
       if (layout.edges) {
         this.edges = this.processEdges(layout.edges);
       }
-    }
-    else {
-      this.nodes = [];
-      this.edges = [];
     }
 
     // console.log('Graph constructor created with nodes:', this.nodes);
@@ -32,8 +31,8 @@ export default class Graph {
         if (!existingEdge && edgeData.source && edgeData.target) {
           edgeMap.set(edgeData.id, new Edge(edgeData));
         }
-    });
-    return Array.from(edgeMap.values());
+      });
+      return Array.from(edgeMap.values());
     }
     return [];
   }
