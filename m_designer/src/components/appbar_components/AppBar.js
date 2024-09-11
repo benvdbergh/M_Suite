@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppBar, Toolbar, IconButton, Typography, Box, Button, Menu, MenuItem } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 
-import { setNewProject } from '../../redux/reducers/lifReducer';
+import { setNewProject } from '../../state/reducers/globalReducer';
 
 import LayoutDropdown from './LayoutDropdown';
 import SearchBar from './SearchBar';
@@ -12,7 +12,7 @@ import ConfirmDialog from '../util_components/ConfirmDialog';
 
 
 const AppBarComponent = () => {
-  const project = useSelector((state) => state.lif.project);
+  const project = useSelector((state) => state.global.project);
   const [anchorEl, setAnchorEl] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const dispatch = useDispatch();

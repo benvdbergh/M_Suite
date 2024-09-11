@@ -1,8 +1,10 @@
 import { combineReducers } from 'redux';
-import lifReducer from './lifReducer';
+import globalReducer from './globalReducer';
+import userReducer from './userReducer';
 
 const rootReducer = combineReducers({
-  lif: lifReducer,
+  global: globalReducer,
+  user: userReducer,
 });
 
 export default rootReducer;

@@ -1,8 +1,8 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
+import { React, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Select, MenuItem } from '@mui/material';
 import { styled, alpha } from '@mui/system';
-import { useLayout } from '../../contexts/LayoutContext';
+import { setSelectedLayoutId } from '../../state/reducers/userReducer';
 
 const LayoutDropdownContainer = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -20,15 +20,26 @@ const LayoutDropdownContainer = styled('div')(({ theme }) => ({
 }));
 
 const LayoutDropdown = () => {
-  const project = useSelector((state) => state.lif.project);
-  const { selectedLayout, setSelectedLayout } = useLayout();
+  const project = useSelector((state) => state.global.project);
+  const selectedLayout = useSelector((state) => state.user.selectedLayout);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (project && project.layouts.length > 0) {
+      const projectId = project.metaInformation.projectIdentification;
+      const layoutId = project.layouts[0].layoutId;
+      dispatch(setSelectedLayoutId({ projectId, layoutId }));
+    }
+  }, [project]);
 
   const handleLayoutChange = (layoutId) => {
     if (layoutId === 'create-new') {
       // Handle creating a new layout
     } else {
       console.log('Changing to layout:', layoutId);
-      setSelectedLayout(project.layouts.find(layout => layout.layoutId === layoutId));
+      const projectId = project.metaInformation.projectIdentification;
+      const layoutId = project.layouts.find(layout => layout.layoutId === layoutId).layoutId;
+      dispatch(setSelectedLayoutId({ projectId, layoutId }));
     }
   };
 
@@ -41,7 +52,7 @@ const LayoutDropdown = () => {
       <Select
         onChange={(e) => handleLayoutChange(e.target.value)}
         fullWidth
-        value={selectedLayout ? selectedLayout.layoutId : ''}
+        value={selectedLayout ? selectedLayout.layoutId : (project.layouts.length > 0 ? project.layouts[0].layoutId : '')}
         size='small'
       >
         {project.layouts.map((layout, index) => (

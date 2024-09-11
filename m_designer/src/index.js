@@ -4,11 +4,10 @@ import { ThemeProvider } from '@mui/material/styles';
 import { lightTheme } from './theme';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import { store, persistor } from './redux/store';
+import { store, persistor } from './state/store';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { LayoutProvider } from './contexts/LayoutContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -16,9 +15,7 @@ root.render(
     <ThemeProvider theme={lightTheme}>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-          <LayoutProvider>
-            <App />
-          </LayoutProvider>
+          <App />
         </PersistGate>
       </Provider>
     </ThemeProvider>

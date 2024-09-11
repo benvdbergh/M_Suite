@@ -3,14 +3,11 @@ import cytoscape from 'cytoscape';
 
 // import { cytoscapeStyles, gridOptions, cxtMenuOptions } from './cyto-config';
 import { cytoscapeStyles, gridOptions } from './cyto-config';
-import { useDispatch } from 'react-redux';
-import { updateNodePosition, addNode, addEdge } from '../state/reducers/lifReducer';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { addNode, addEdge, updateNodePosition } from '../state/reducers/globalReducer';
 import { useTool } from './ToolContext';
-import { useLayout } from './LayoutContext';
 
-
-import Graph from '../components/graph_components/Graph';
+import { Layout } from '../state/models/Layout';
 import ToolTypes from '../constants/ToolTypes'; 
 
 const CyContext = createContext();
@@ -25,36 +22,53 @@ export const CyProvider = ({ children }) => {
   const cyRef = useRef(null);
   const [cyInstance, setCyInstance] = useState(null);
   const [lastNode, setLastNode] = useState(null);
+  const selectedTool = useTool().selectedTool;
+
   const dispatch = useDispatch();
+  const project = useSelector((state) => state.global.project);
+  const selectedLayoutId = useSelector((state) => state.user.selectedLayoutId);
 
-  const { selectedTool } = useTool();
-  const { selectedLayout } = useLayout();
-
-  // const project = useSelector((state) => state.lif.project);
+  const initialized = useRef(false);
 
   useEffect(() => {
-    if (!cyInstance && cyRef.current) {
-      console.log("Init cyInstance");
+    if (!initialized.current && cyRef.current) {
+      const layout = selectedLayoutId ? project.layouts.find(l => l.layoutId === selectedLayoutId) : null;  
+      console.log('Init Layout:', layout);
+      const elements = layout ? Layout.toCytoscape(layout) : [];
+
       const cy = cytoscape({
         container: cyRef.current,
-        elements: new Graph(selectedLayout).toCytoscape(),
+        elements: elements,
         style: cytoscapeStyles,
         layout: { name: 'preset' }
       });
+
+      console.log('Cy instance:', cy);
+
       setLastNode(null);
       setCyInstance(cy);
+      initialized.current = true;
+      // return () => {
+      //   cy.destroy();
+      //   setCyInstance(null);
+      // };
     }
-  }, [cyInstance, selectedLayout ]);
+  }, [project, selectedLayoutId]);
 
   useEffect(() => {
     if (cyInstance) {
-      console.log("Update cyInstance");
-      cyInstance.elements().remove();
-      cyInstance.json({ elements: new Graph(selectedLayout).toCytoscape() });
-      cyInstance.style(cytoscapeStyles); 
-      
-      cyInstance.gridGuide(gridOptions);
-      // cyInstance.cxtmenu(cxtMenuOptions(updateElement));
+      const layout = project.layouts.find(l => l.layoutId === selectedLayoutId);
+      const elements = layout ? Layout.toCytoscape(layout) : [];
+      console.log("update cyInstance with elements:", elements);  
+      if (elements) {
+        cyInstance.batch(() => {
+          cyInstance.elements().remove();
+          cyInstance.add(elements);
+          cyInstance.style(cytoscapeStyles);
+        });
+      } else {
+        console.warn("No elements to update in cyInstance");
+      }
 
       const handleNodeTap = (event) => {
         event.stopPropagation();
@@ -70,17 +84,17 @@ export const CyProvider = ({ children }) => {
               if (lastNode) {
                 if (lastNode.data && node.data()) {
                   console.log("Closing the path to node: ", node.id());
-                  const newEdgeData = {
-                    group: 'edges',
-                    data: {
-                      id: `edge-${selectedLayout.edges.length + 1}`,
-                      source: lastNode.data.id,
-                      target: node.id(),
-                      label: `Edge ${selectedLayout.edges.length + 1}`,
-                      description: '',
-                    },
-                  };
-                  dispatch(addEdge(newEdgeData.data));
+                  // const newEdgeData = {
+                  //   group: 'edges',
+                  //   data: {
+                  //     id: `edge-${selectedLayoutId.edges.length + 1}`,
+                  //     source: lastNode.data.id,
+                  //     target: node.id(),
+                  //     label: `Edge ${selectedLayoutId.edges.length + 1}`,
+                  //     description: '',
+                  //   },
+                  // };
+                  // dispatch(addEdge(newEdgeData.data));
                   setLastNode(null);
                 };
               } else {
@@ -102,65 +116,66 @@ export const CyProvider = ({ children }) => {
       const handleCanvasLeftClick = (event) => {
         event.stopPropagation();
         if (event.target === cyInstance && (selectedTool === ToolTypes.DRAW_NODE || selectedTool === ToolTypes.DRAW_PATH)) {
-          const newNodeData = {
-            group: 'nodes',
-            data: {
-              id: `node-${selectedLayout.nodes.length + 1}`,
-              label: `Node ${selectedLayout.nodes.length + 1}`,
-              description: '',
-              position: { ...event.position }
-            },
-            position: { ...event.position }
-          };
-          dispatch(addNode(newNodeData.data));
-    
-          if (selectedTool === ToolTypes.DRAW_PATH) {
-            if (lastNode && selectedLayout.nodes.some(node => node.id === lastNode.data.id)) {
-              if (lastNode.data && newNodeData.data) {
-                const newEdgeData = {
-                  group: 'edges',
-                  data: {
-                    id: `edge-${selectedLayout.edges.length + 1}`,
-                    source: lastNode.data.id,
-                    target: newNodeData.data.id,
-                    label: `Edge ${selectedLayout.edges.length + 1}`,
-                    description: '',
-                  },
-                };
-                dispatch(addEdge(newEdgeData.data));
-              };
-            }
-            setLastNode(newNodeData);
+          const position = { ...event.position };
+          switch (selectedTool) {
+            case ToolTypes.SELECT:
+              // dispatch(setSelectedElement(node.data()));
+              break;
+            case ToolTypes.DRAW_NODE:
+              dispatch(addNode({selectedLayoutId, position}));
+              break;
+            case ToolTypes.DRAW_PATH:
+              // if (lastNode) {
+              //   if (lastNode.data && node.data()) {
+              //     dispatch(addNode({selectedLayoutId, position}));
+              //     if (selectedTool === ToolTypes.DRAW_PATH) {
+              //       if (lastNode && selectedLayout.nodes.some(node => node.id === lastNode.data.id)) {
+              //         if (lastNode.data && newNodeData.data) {
+              //           const sourceNode = lastNode.data.id;
+              //           const targetNode = newNodeData.data.id;
+              //           dispatch(addEdge(selectedLayoutId, sourceNode, targetNode ));
+              //         };
+              //       }
+              //       setLastNode(newNodeData);
+              //     }
+              //   };
+              // } else {
+              //   setLastNode(node);
+              // }
+              break;
+            default:
+              break;
           }
         }
       };
     
       const handleCanvasDragFree = (event) => {
         event.stopPropagation();
-        console.log('handleCanvasDragFree called with event:', event);
         if ( event.target.isNode()) {
           const draggedNode = event.target;
-          console.log('Dragged node:', draggedNode.id());
           const newPosition = draggedNode.position();
-          dispatch(updateNodePosition({ id: draggedNode.id(), newPosition: newPosition }));
+          dispatch(updateNodePosition({ layoutId: selectedLayoutId, nodeId: draggedNode.id(), newPosition: newPosition }));
         }
       };
+
+      cyInstance.gridGuide(gridOptions);
+      // cyInstance.cxtmenu(cxtMenuOptions(updateElement));
 
       // Add event listeners for user interactions
       cyInstance.on('tap', 'node', handleNodeTap);
       cyInstance.on('tap', 'edge', handleEdgeTap);
       cyInstance.on('tap', handleCanvasLeftClick);
-      cyInstance.on('free', 'node', handleCanvasDragFree);
+      cyInstance.on('drag', 'node', handleCanvasDragFree);
 
       return () => {
         cyInstance.removeListener('tap', 'node', handleNodeTap);
         cyInstance.removeListener('tap', 'edge', handleEdgeTap);
         cyInstance.removeListener('tap', handleCanvasLeftClick);
-        cyInstance.removeListener('free', 'node', handleCanvasDragFree);
+        cyInstance.removeListener('drag', 'node', handleCanvasDragFree);
       };
     }
 
-  }, [cyInstance, selectedLayout, selectedTool, lastNode, dispatch]);
+  }, [cyInstance, project, selectedLayoutId, selectedTool, lastNode, dispatch]);
 
   return (
     <CyContext.Provider value={{ cyInstance, cyRef }}>

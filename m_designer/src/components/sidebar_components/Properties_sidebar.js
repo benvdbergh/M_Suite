@@ -13,8 +13,8 @@ const PropertiesSidebarContainer = styled(Box)(({ theme }) => ({
 }));
 
 const PropertiesSidebar = () => {
-  const selectedElement = useSelector((state) => state.lif.selectedElement);
-  const project = useSelector((state) => state.lif.project);
+  const selectedElement = useSelector((state) => state.user.selectedElementId);
+  const project = useSelector((state) => state.global.project);
 
   const handleElementUpdate = (id, newData) => {
     // dispatch(updateElement({ id, newData }));
