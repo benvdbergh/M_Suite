@@ -4,7 +4,7 @@ import cytoscape from 'cytoscape';
 // import { cytoscapeStyles, gridOptions, cxtMenuOptions } from './cyto-config';
 import { cytoscapeStyles, gridOptions } from './cyto-config';
 import { useDispatch } from 'react-redux';
-import { updateNodePosition, addNode, addEdge } from '../redux/reducers/lifReducer';
+import { updateNodePosition, addNode, addEdge } from '../state/reducers/lifReducer';
 
 import { useTool } from './ToolContext';
 import { useLayout } from './LayoutContext';

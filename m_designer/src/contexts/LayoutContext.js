@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setSelectedLayout } from '../redux/reducers/lifReducer';
+import { setSelectedLayout } from '../state/reducers/lifReducer';
 
 const LayoutContext = createContext();
 
