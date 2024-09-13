@@ -23,7 +23,7 @@ export class Layout {
       console.warn('Layout.addNode called with invalid position:', newNodePosition);
       return layout;
     }
-    
+
     const nodeId = `node-${layout.nodes.length + 1}`;
     const nodeName = `Node ${layout.nodes.length + 1}`;
     const newNode = {
@@ -35,11 +35,30 @@ export class Layout {
       vehicleTypeNodeProperties: [],
     }
     layout.nodes.push(newNode);
-    return layout;
+    return [layout, newNode];
   }
 
-  addEdge(newEdge) {
-    
+  static addEdge(layout, startNodeId, endNodeId) {
+    if (!layout) {
+      console.warn('Layout.addEdge called with null layout:', layout);
+      return layout;
+    }
+    if (!startNodeId || !endNodeId) {
+      console.warn('Layout.addEdge called with invalid node ids:', startNodeId, endNodeId);
+      return layout;
+    }
+
+    const edgeId = `edge-${layout.edges.length + 1}`;
+    const edgeName = `Edge ${layout.edges.length + 1}`;
+    const newEdge = {
+      edgeId: edgeId,
+      edgeName: edgeName,
+      startNodeId: startNodeId,
+      endNodeId: endNodeId,
+      edgeDescription: null,
+    };
+    layout.edges.push(newEdge);
+    return [layout, newEdge];
   }
 
   static edgesToCytoscape(edges) {
@@ -54,11 +73,11 @@ export class Layout {
         const existingEdgeBidirectional = cyto_edges.find(cyto_edge =>
           (cyto_edge.data.source === edge.endNodeId && cyto_edge.data.target === edge.startNodeId)
         );
-
+        
         if (existingEdgeBidirectional) {
           existingEdgeBidirectional.data.bidirectional = true;
           existingEdgeBidirectional.data.sourceArrowShape = 'triangle';
-        } else if (!existingEdge && edge.source && edge.target) {
+        } else if (!existingEdge && edge.startNodeId && edge.endNodeId) {
           const cyto_edge = {
             group: 'edges',
             id: edge.edgeId,
@@ -73,6 +92,7 @@ export class Layout {
               targetArrowShape: 'triangle',
             }
           };
+          
           cyto_edges.push(cyto_edge);
         }
       });

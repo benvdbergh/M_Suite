@@ -22,11 +22,12 @@ const globalSlice = createSlice({
       state.project = Project.fromJSON(action.payload).toJSON();
     },
     addNode : produce((draft, action) => {
-      const { selectedLayoutId, position } = action.payload;
-      var layout = draft.project.layouts.find(l => l.layoutId === selectedLayoutId);
-
+      const { layoutId, position } = action.payload;
+      var layout = draft.project.layouts.find(l => l.layoutId === layoutId);
+      var newNode = null; 
       if (layout) {
-        layout = Layout.addNode(layout, position);
+        [ layout, newNode] = Layout.addNode(layout, position);
+        console.log('New node added: ', newNode);
       }
     }),
     updateNodePosition: produce((draft, action) => {
@@ -40,14 +41,29 @@ const globalSlice = createSlice({
     }),
     addEdge: produce((draft, action) => {
       const { layoutId, startNodeId, endNodeId } = action.payload;
-      const layout = draft.project.layouts.find(l => l.layoutId === layoutId);
-
+      var layout = draft.project.layouts.find(l => l.layoutId === layoutId);
+      var newEdge = null;
       if (layout) {
-        layout.addEdge(startNodeId, endNodeId);
+        [layout, newEdge] = Layout.addEdge(layout, startNodeId, endNodeId);
+        console.log('New edge created: ', newEdge);
       }
     }),
+    extendPath : produce((draft, action) => {
+      const { layoutId, position } = action.payload;
+      var layout = draft.project.layouts.find(l => l.layoutId === layoutId);
+      var newNode = null;
+      var newEdge = null;
+
+      if (layout) {
+        const lastNode = layout.nodes[layout.nodes.length - 1];
+        [layout, newNode] = Layout.addNode(layout, position);
+        console.log('New node created: ', newNode);
+        [layout, newEdge] = Layout.addEdge(layout, lastNode.nodeId, newNode.nodeId)
+        console.log('New edge created: ', newEdge);
+      }
+    })
   },
 });
 
-export const { setNewProject, setProject, updateNodePosition, addNode, addEdge } = globalSlice.actions;
+export const { setNewProject, setProject, updateNodePosition, addNode, addEdge, extendPath } = globalSlice.actions;
 export default globalSlice.reducer;

@@ -19,12 +19,12 @@ const userSlice = createSlice({
     }),
     setSelectedElementId(state, action) {
       const { projectId, layoutId, elementId } = action.payload;
-      if (layoutId === state.selectedLayoutId) {
+      if (projectId === state.selectedProjectId && layoutId === state.selectedLayoutId) {
         state.selectedElementId = elementId;
       }
     },
   },
 });
 
-export const { setSelectedLayoutId, setSelectedElementId } = userSlice.actions;
+export const { setSelectedLayoutId, setSelectedElementId, setLastCreatedNodeId } = userSlice.actions;
 export default userSlice.reducer;

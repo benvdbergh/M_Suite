@@ -4,7 +4,8 @@ import cytoscape from 'cytoscape';
 // import { cytoscapeStyles, gridOptions, cxtMenuOptions } from './cyto-config';
 import { cytoscapeStyles, gridOptions } from './cyto-config';
 import { useDispatch, useSelector } from 'react-redux';
-import { addNode, addEdge, updateNodePosition } from '../state/reducers/globalReducer';
+import { addNode, addEdge, updateNodePosition, extendPath } from '../state/reducers/globalReducer';
+import { setSelectedElementId } from '../state/reducers/userReducer';
 import { useTool } from './ToolContext';
 
 import { Layout } from '../state/models/Layout';
@@ -21,7 +22,7 @@ cxtmenu(cytoscape);
 export const CyProvider = ({ children }) => {
   const cyRef = useRef(null);
   const [cyInstance, setCyInstance] = useState(null);
-  const [lastNode, setLastNode] = useState(null);
+  const [drawingPath, setDrawingPath] = useState(false);
   const selectedTool = useTool().selectedTool;
 
   const dispatch = useDispatch();
@@ -44,22 +45,18 @@ export const CyProvider = ({ children }) => {
       });
 
       console.log('Cy instance:', cy);
-
-      setLastNode(null);
       setCyInstance(cy);
       initialized.current = true;
-      // return () => {
-      //   cy.destroy();
-      //   setCyInstance(null);
-      // };
     }
   }, [project, selectedLayoutId]);
 
   useEffect(() => {
     if (cyInstance) {
+      const projectId = project.metaInformation.projectIdentification;
+      const layoutId = selectedLayoutId;
       const layout = project.layouts.find(l => l.layoutId === selectedLayoutId);
       const elements = layout ? Layout.toCytoscape(layout) : [];
-      console.log("update cyInstance with elements:", elements);  
+      
       if (elements) {
         cyInstance.batch(() => {
           cyInstance.elements().remove();
@@ -81,25 +78,6 @@ export const CyProvider = ({ children }) => {
               // dispatch(setSelectedElement(node.data()));
               break;
             case ToolTypes.DRAW_PATH:
-              if (lastNode) {
-                if (lastNode.data && node.data()) {
-                  console.log("Closing the path to node: ", node.id());
-                  // const newEdgeData = {
-                  //   group: 'edges',
-                  //   data: {
-                  //     id: `edge-${selectedLayoutId.edges.length + 1}`,
-                  //     source: lastNode.data.id,
-                  //     target: node.id(),
-                  //     label: `Edge ${selectedLayoutId.edges.length + 1}`,
-                  //     description: '',
-                  //   },
-                  // };
-                  // dispatch(addEdge(newEdgeData.data));
-                  setLastNode(null);
-                };
-              } else {
-                setLastNode(node);
-              }
               break;
             default:
               break;
@@ -115,33 +93,22 @@ export const CyProvider = ({ children }) => {
     
       const handleCanvasLeftClick = (event) => {
         event.stopPropagation();
-        if (event.target === cyInstance && (selectedTool === ToolTypes.DRAW_NODE || selectedTool === ToolTypes.DRAW_PATH)) {
+        if (event.target === cyInstance) {
           const position = { ...event.position };
           switch (selectedTool) {
             case ToolTypes.SELECT:
               // dispatch(setSelectedElement(node.data()));
               break;
             case ToolTypes.DRAW_NODE:
-              dispatch(addNode({selectedLayoutId, position}));
+              dispatch(addNode({layoutId, position}));
               break;
             case ToolTypes.DRAW_PATH:
-              // if (lastNode) {
-              //   if (lastNode.data && node.data()) {
-              //     dispatch(addNode({selectedLayoutId, position}));
-              //     if (selectedTool === ToolTypes.DRAW_PATH) {
-              //       if (lastNode && selectedLayout.nodes.some(node => node.id === lastNode.data.id)) {
-              //         if (lastNode.data && newNodeData.data) {
-              //           const sourceNode = lastNode.data.id;
-              //           const targetNode = newNodeData.data.id;
-              //           dispatch(addEdge(selectedLayoutId, sourceNode, targetNode ));
-              //         };
-              //       }
-              //       setLastNode(newNodeData);
-              //     }
-              //   };
-              // } else {
-              //   setLastNode(node);
-              // }
+              if (!drawingPath) {
+                dispatch(addNode({ layoutId, position }));
+                setDrawingPath(true);
+              } else {
+                dispatch(extendPath({ layoutId, position }));
+              }
               break;
             default:
               break;
@@ -167,15 +134,25 @@ export const CyProvider = ({ children }) => {
       cyInstance.on('tap', handleCanvasLeftClick);
       cyInstance.on('drag', 'node', handleCanvasDragFree);
 
+      // Add event listener to reset drawingPath when clicking outside the canvas
+      const handleDocumentClick = (event) => {
+        if (!cyRef.current.contains(event.target)) {
+          setDrawingPath(false);
+        }
+      };
+
+      document.addEventListener('click', handleDocumentClick);
+
       return () => {
         cyInstance.removeListener('tap', 'node', handleNodeTap);
         cyInstance.removeListener('tap', 'edge', handleEdgeTap);
         cyInstance.removeListener('tap', handleCanvasLeftClick);
         cyInstance.removeListener('drag', 'node', handleCanvasDragFree);
+        document.removeEventListener('click', handleDocumentClick);
       };
     }
 
-  }, [cyInstance, project, selectedLayoutId, selectedTool, lastNode, dispatch]);
+  }, [cyInstance, project, selectedLayoutId, selectedTool, drawingPath, dispatch]);
 
   return (
     <CyContext.Provider value={{ cyInstance, cyRef }}>
