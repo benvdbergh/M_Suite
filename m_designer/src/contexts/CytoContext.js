@@ -5,7 +5,7 @@ import cytoscape from 'cytoscape';
 import { cytoscapeStyles, gridOptions } from './cyto-config';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNode, addEdge, updateNodePosition, extendPath } from '../state/reducers/globalReducer';
-import { setSelectedElementId } from '../state/reducers/userReducer';
+import { setSelectedElement } from '../state/reducers/userReducer';
 import { useTool } from './ToolContext';
 
 import { Layout } from '../state/models/Layout';
@@ -75,7 +75,7 @@ export const CyProvider = ({ children }) => {
     
           switch (selectedTool) { 
             case ToolTypes.SELECT:
-              // dispatch(setSelectedElement(node.data()));
+              dispatch(setSelectedElement({projectId, layoutId, elementType: "node", elementId: node.id()}));
               break;
             case ToolTypes.DRAW_PATH:
               break;
@@ -89,6 +89,7 @@ export const CyProvider = ({ children }) => {
         const edge = event.target;
         // Handle edge tap event
         console.log('Edge tapped:', edge.id());
+        dispatch(setSelectedElement({projectId, layoutId, elementType: "edge", elementId: edge.id()}));
       };
     
       const handleCanvasLeftClick = (event) => {
@@ -97,7 +98,7 @@ export const CyProvider = ({ children }) => {
           const position = { ...event.position };
           switch (selectedTool) {
             case ToolTypes.SELECT:
-              // dispatch(setSelectedElement(node.data()));
+              dispatch(setSelectedElement({projectId, layoutId, elementType: null, elementId: null}));
               break;
             case ToolTypes.DRAW_NODE:
               dispatch(addNode({layoutId, position}));
@@ -137,7 +138,7 @@ export const CyProvider = ({ children }) => {
       // Add event listener to reset drawingPath when clicking outside the canvas
       const handleDocumentClick = (event) => {
         if (!cyRef.current.contains(event.target)) {
-          setDrawingPath(false);
+          setDrawingPath(false); 
         }
       };
 

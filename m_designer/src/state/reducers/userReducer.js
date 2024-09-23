@@ -4,7 +4,10 @@ import { produce } from 'immer';
 const initialState = {
   selectedProjectId: null,
   selectedLayoutId: null,
-  selectedElementId: null,
+  selectedElement: {
+    elementType: null,
+    elementId: null
+  },
   // Add other user-specific states here
 };
 
@@ -17,14 +20,17 @@ const userSlice = createSlice({
       draft.selectedProjectId = projectId;
       draft.selectedLayoutId = layoutId;
     }),
-    setSelectedElementId(state, action) {
-      const { projectId, layoutId, elementId } = action.payload;
+    setSelectedElement(state, action) {
+      const { projectId, layoutId, elementType, elementId } = action.payload;
+      console.log('setSelectedElement called with:', projectId, layoutId, elementType, elementId);      
       if (projectId === state.selectedProjectId && layoutId === state.selectedLayoutId) {
-        state.selectedElementId = elementId;
+        state.selectedElement = { elementType, elementId };
+        state.selectedElement.elementType = elementType;
+        state.selectedElement.elementId = elementId;
       }
     },
   },
 });
 
-export const { setSelectedLayoutId, setSelectedElementId, setLastCreatedNodeId } = userSlice.actions;
+export const { setSelectedLayoutId, setSelectedElement } = userSlice.actions;
 export default userSlice.reducer;

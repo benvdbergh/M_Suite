@@ -5,6 +5,7 @@ import { AppBar, Toolbar, IconButton, Typography, Box, Button, Menu, MenuItem } 
 import AccountCircle from '@mui/icons-material/AccountCircle';
 
 import { setNewProject } from '../../state/reducers/globalReducer';
+import { setSelectedElement } from '../../state/reducers/userReducer';
 
 import LayoutDropdown from './LayoutDropdown';
 import SearchBar from './SearchBar';
@@ -54,6 +55,7 @@ const AppBarComponent = () => {
 
   const handleConfirmNewProject = () => {
     dispatch(setNewProject());
+    dispatch(setSelectedElement({ projectId: null, layoutId: null, elementType: null, elementId: null })); 
     setDialogOpen(false);
     handleMenuClose();
   };

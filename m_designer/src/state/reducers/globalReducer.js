@@ -37,6 +37,7 @@ const globalSlice = createSlice({
       if (layout) {
         var node = layout.nodes.find(n => n.nodeId === nodeId);
         node = Node.moveNode(node, newPosition);
+        console.log('Node moved: ', node);
       }
     }),
     addEdge: produce((draft, action) => {
@@ -61,9 +62,30 @@ const globalSlice = createSlice({
         [layout, newEdge] = Layout.addEdge(layout, lastNode.nodeId, newNode.nodeId)
         console.log('New edge created: ', newEdge);
       }
-    })
+    }),
+    updateElement: produce((draft, action) => {
+      const { projectId, layoutId, elementId, newData } = action.payload;
+      const project = draft.project;
+      if (project.metaInformation.projectIdentification !== projectId) {
+        return;
+      }
+
+      const layout = project.layouts.find(l => l.layoutId === layoutId);
+      if (!layout) {
+        return;
+      }
+
+      let element = layout.nodes.find(n => n.nodeId === elementId);
+      if (!element) {
+        element = layout.edges.find(e => e.edgeId === elementId);
+      }
+
+      if (element) {
+        Object.assign(element, newData);
+      }
+    }),
   },
 });
 
-export const { setNewProject, setProject, updateNodePosition, addNode, addEdge, extendPath } = globalSlice.actions;
+export const { setNewProject, setProject, updateNodePosition, addNode, addEdge, extendPath, updateElement } = globalSlice.actions;
 export default globalSlice.reducer;
