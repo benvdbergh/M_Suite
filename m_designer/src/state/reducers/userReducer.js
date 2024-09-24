@@ -22,7 +22,7 @@ const userSlice = createSlice({
     }),
     setSelectedElement(state, action) {
       const { projectId, layoutId, elementType, elementId } = action.payload;
-      console.log('setSelectedElement called with:', projectId, layoutId, elementType, elementId);      
+    
       if (projectId === state.selectedProjectId && layoutId === state.selectedLayoutId) {
         state.selectedElement = { elementType, elementId };
         state.selectedElement.elementType = elementType;

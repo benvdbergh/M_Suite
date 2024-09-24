@@ -27,26 +27,29 @@ const globalSlice = createSlice({
       var newNode = null; 
       if (layout) {
         [ layout, newNode] = Layout.addNode(layout, position);
-        console.log('New node added: ', newNode);
+        console.trace('New node added: ', newNode);
       }
     }),
     updateNodePosition: produce((draft, action) => {
       const { layoutId, nodeId, newPosition } = action.payload;
       var layout = draft.project.layouts.find(l => l.layoutId === layoutId);
 
+      console.assert(layout, `Layout with id ${layoutId} not found`);
       if (layout) {
         var node = layout.nodes.find(n => n.nodeId === nodeId);
         node = Node.moveNode(node, newPosition);
-        console.log('Node moved: ', node);
+        console.assert(node, `Node with id ${nodeId} not moved`);
       }
     }),
     addEdge: produce((draft, action) => {
       const { layoutId, startNodeId, endNodeId } = action.payload;
       var layout = draft.project.layouts.find(l => l.layoutId === layoutId);
       var newEdge = null;
+
+      console.assert(layout, `Layout with id ${layoutId} not found`);
       if (layout) {
         [layout, newEdge] = Layout.addEdge(layout, startNodeId, endNodeId);
-        console.log('New edge created: ', newEdge);
+        console.trace('New edge created: ', newEdge);
       }
     }),
     extendPath : produce((draft, action) => {
@@ -55,22 +58,28 @@ const globalSlice = createSlice({
       var newNode = null;
       var newEdge = null;
 
+      console.assert(layout, `Layout with id ${layoutId} not found`);
       if (layout) {
         const lastNode = layout.nodes[layout.nodes.length - 1];
         [layout, newNode] = Layout.addNode(layout, position);
-        console.log('New node created: ', newNode);
+        console.assert(newNode, `New node could not be added at ${position.x}, ${position.y}`);
+
         [layout, newEdge] = Layout.addEdge(layout, lastNode.nodeId, newNode.nodeId)
-        console.log('New edge created: ', newEdge);
+        console.assert(newEdge, `Edge between ${lastNode.nodeId} and ${newNode.nodeId} not created`);
       }
     }),
     updateElement: produce((draft, action) => {
       const { projectId, layoutId, elementId, newData } = action.payload;
       const project = draft.project;
+
+      console.assert(project, `Project with id ${projectId} not found`);
       if (project.metaInformation.projectIdentification !== projectId) {
         return;
       }
 
       const layout = project.layouts.find(l => l.layoutId === layoutId);
+
+      console.assert(layout, `Layout with id ${layoutId} not found`);
       if (!layout) {
         return;
       }
@@ -81,6 +90,7 @@ const globalSlice = createSlice({
       }
 
       if (element) {
+        console.trace('Element updated: ', element);
         Object.assign(element, newData);
       }
     }),
