@@ -24,6 +24,7 @@ export const CyProvider = ({ children }) => {
   const [cyInstance, setCyInstance] = useState(null);
   const [drawingPath, setDrawingPath] = useState(false);
   const selectedTool = useTool().selectedTool;
+  const setSeletedTool = useTool().setSelectedTool;
 
   const dispatch = useDispatch();
   const project = useSelector((state) => state.global.project);
@@ -89,7 +90,8 @@ export const CyProvider = ({ children }) => {
         const edge = event.target;
         // Handle edge tap event
         console.log('Edge tapped:', edge.id());
-        dispatch(setSelectedElement({projectId, layoutId, elementType: "edge", elementId: edge.id()}));
+        dispatch(setSelectedElement({ projectId, layoutId, elementType: "edge", elementId: edge.id() }));
+        setSeletedTool(ToolTypes.SELECT);
       };
     
       const handleCanvasLeftClick = (event) => {
