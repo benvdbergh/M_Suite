@@ -69,18 +69,12 @@ const globalSlice = createSlice({
       }
     }),
     updateElement: produce((draft, action) => {
-      const { projectId, layoutId, elementId, newData } = action.payload;
-      const project = draft.project;
-
-      console.assert(project, `Project with id ${projectId} not found`);
-      if (project.metaInformation.projectIdentification !== projectId) {
-        return;
-      }
-
-      const layout = project.layouts.find(l => l.layoutId === layoutId);
+      const { layoutId, elementId, newData } = action.payload;
+      const layout = draft.project.layouts.find(l => l.layoutId === layoutId);
 
       console.assert(layout, `Layout with id ${layoutId} not found`);
       if (!layout) {
+        console.warn('Layout not found');
         return;
       }
 
@@ -88,11 +82,10 @@ const globalSlice = createSlice({
       if (!element) {
         element = layout.edges.find(e => e.edgeId === elementId);
       }
-
       if (element) {
-        console.trace('Element updated: ', element);
         Object.assign(element, newData);
       }
+      console.assert(element, `Element with id ${elementId} not found`);
     }),
   },
 });

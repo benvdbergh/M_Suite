@@ -25,7 +25,8 @@ const PropertiesSidebar = () => {
     .find(element => element.nodeId === selectedElementId || element.edgeId === selectedElementId);
 
   const handleElementUpdate = (id, newData) => {
-    dispatch(updateElement({ project, layoutId, id, newData })); // Dispatch the updateElement action
+    console.trace('Element updated: ', id, newData);
+    dispatch(updateElement({ layoutId, elementId: id, newData })); // Dispatch the updateElement action
   };
 
   return (
