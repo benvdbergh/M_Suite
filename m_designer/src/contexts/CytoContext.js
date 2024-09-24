@@ -4,7 +4,7 @@ import cytoscape from 'cytoscape';
 // import { cytoscapeStyles, gridOptions, cxtMenuOptions } from './cyto-config';
 import { cytoscapeStyles, gridOptions } from './cyto-config';
 import { useDispatch, useSelector } from 'react-redux';
-import { addNode, addEdge, updateNodePosition, extendPath } from '../state/reducers/globalReducer';
+import { addNode, updateNodePosition, extendPath } from '../state/reducers/globalReducer';
 import { setSelectedElement } from '../state/reducers/userReducer';
 import { useTool } from './ToolContext';
 
@@ -155,7 +155,7 @@ export const CyProvider = ({ children }) => {
       };
     }
 
-  }, [cyInstance, project, selectedLayoutId, selectedTool, drawingPath, dispatch]);
+  }, [cyInstance, project, selectedLayoutId, selectedTool, drawingPath, setSeletedTool, dispatch]);
 
   return (
     <CyContext.Provider value={{ cyInstance, cyRef }}>

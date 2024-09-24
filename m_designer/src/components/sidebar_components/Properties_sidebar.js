@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import NodeProperties from './NodeProperties_card';
 import EdgeProperties from './EdgeProperties_card';
@@ -18,18 +18,14 @@ const PropertiesSidebar = () => {
   const selectedElementId = useSelector((state) => state.user.selectedElement.elementId);
   const selectedElementType = useSelector((state) => state.user.selectedElement.elementType);
   const project = useSelector((state) => state.global.project);
+  const layoutId = useSelector((state) => state.user.selectedLayoutId);
 
   const selectedElement = project.layouts
     .flatMap(layout => layout.nodes.concat(layout.edges))
     .find(element => element.nodeId === selectedElementId || element.edgeId === selectedElementId);
 
-  useEffect(() => {
-    console.log('Selected Element ID:', selectedElementId);
-    console.log('Selected Element:', selectedElement);
-  }, [selectedElementId, selectedElement]);
-
   const handleElementUpdate = (id, newData) => {
-    dispatch(updateElement({ id, newData })); // Dispatch the updateElement action
+    dispatch(updateElement({ project, layoutId, id, newData })); // Dispatch the updateElement action
   };
 
   return (

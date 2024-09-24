@@ -3,7 +3,6 @@ import { TextField, Typography, Accordion, AccordionSummary, AccordionDetails, A
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const EdgeProperties = ({ selectedElement, updateElement, project }) => {
-  const [newId, setNewId] = useState('');
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [startNodeId, setStartNodeId] = useState('');
@@ -12,13 +11,13 @@ const EdgeProperties = ({ selectedElement, updateElement, project }) => {
 
   const [isSectionExpanded, setIsSectionExpanded] = useState(true);
 
+
   useEffect(() => {
     if (selectedElement) {
-      setNewId(selectedElement.id || '');
-      setNewName(selectedElement.label || '');
-      setNewDescription(selectedElement.description || '');
-      setStartNodeId(selectedElement.source || '');
-      setEndNodeId(selectedElement.target || '');
+      setNewName(selectedElement.edgeName || '');
+      setNewDescription(selectedElement.edgeDescription || '');
+      setStartNodeId(selectedElement.startNodeId || '');
+      setEndNodeId(selectedElement.endNodeId || '');
     }
     console.log(selectedElement);
   }, [selectedElement]);
@@ -30,12 +29,11 @@ const EdgeProperties = ({ selectedElement, updateElement, project }) => {
       console.log(project);
       setNodeOptions(project.layouts[0].nodes.map(node => ({ label: node.nodeName, id: node.nodeId })));
     }
-  },
-  [project]);
+  }, [project]);
 
   const handleBlur = (field, value) => {
     if (selectedElement) {
-      updateElement(selectedElement.id, { [field]: value });
+      updateElement(selectedElement.edgeId, { [field]: value });
     }
   };
 
@@ -46,26 +44,21 @@ const EdgeProperties = ({ selectedElement, updateElement, project }) => {
   return (
       <Accordion expanded={isSectionExpanded} onChange={toggleSection}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h6">Basic Information</Typography>
+          <Typography variant="h6">Edge Info</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <TextField
             label="Edge Id"
-            value={newId}
-            onBlur={(e) => handleBlur('id', e.target.value)}
+            value={selectedElement?.edgeId}
             fullWidth
-            slotProps={{
-              input: {
-                readOnly: true,
-              },
-            }}
+            disabled
             margin="normal"
           />
           <TextField
             label="Edge Name"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            onBlur={(e) => handleBlur('id', e.target.value)}
+            onBlur={(e) => handleBlur('edgeName', e.target.value)}
             fullWidth
             margin="normal"
           />
@@ -73,7 +66,7 @@ const EdgeProperties = ({ selectedElement, updateElement, project }) => {
             label="Edge Description"
             value={newDescription}
             onChange={(e) => setNewDescription(e.target.value)}
-            onBlur={(e) => handleBlur('description', e.target.value)}
+            onBlur={(e) => handleBlur('edgeDescription', e.target.value)}
             fullWidth
             margin="normal"
             multiline
