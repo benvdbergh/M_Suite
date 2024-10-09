@@ -20,6 +20,7 @@ const AppContainer = styled(Box)(({ theme }) => ({
 const MainContent = styled(Box)(({ theme }) => ({
   display: 'flex',
   flex: 1,
+  overflow: 'hidden',
 }));
 
 const ToolPanelContainer = styled(Box)(({ theme }) => ({
@@ -40,10 +41,13 @@ const CanvasContainer = styled(Box)(({ theme }) => ({
 }));
 
 const SidebarContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
   width: '250px',
   backgroundColor: theme.palette.background.default,
   borderLeft: `1px solid ${theme.palette.divider}`,
   padding: theme.spacing(1),
+  overflowY: 'auto',
 }));
 
 const App = () => {

@@ -25,7 +25,16 @@ const lightTheme = createTheme({
       secondary: '#666666',
     },
   },
+  components: {
+    MuiTextField: {
+      defaultProps: {
+        size: 'small',     // Set default size to 'small'
+        margin: 'dense',
+      },
+    },
+  },
 });
+
 
 const darkTheme = createTheme({
   ...commonSettings,
@@ -39,6 +48,14 @@ const darkTheme = createTheme({
     text: {
       primary: '#ffffff',
       secondary: '#cccccc',
+    },
+  },
+  components: {
+    MuiTextField: {
+      defaultProps: {
+        size: 'small',     // Set default size to 'small'
+        margin: 'dense',
+      },
     },
   },
 });
