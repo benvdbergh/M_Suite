@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Accordion, TextField } from '@mui/material';
-
-import { Typography, AccordionSummary, AccordionDetails } from '@mui/material';
+import { Accordion, TextField, Typography, AccordionSummary, AccordionDetails} from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const NodeProperties = ({ selectedElement, updateElement }) => {
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [newPosition, setNewPosition] = useState({ x: 0, y: 0 });
-
+  
   const [isSectionExpanded, setIsSectionExpanded] = useState(true);
-
 
   useEffect(() => {
     if (selectedElement) {
@@ -79,7 +76,7 @@ const NodeProperties = ({ selectedElement, updateElement }) => {
           fullWidth
           margin="normal"
         />
-        </AccordionDetails>
+      </AccordionDetails>
     </Accordion>
   );
 };

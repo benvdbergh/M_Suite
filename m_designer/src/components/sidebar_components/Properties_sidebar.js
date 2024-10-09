@@ -1,10 +1,11 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import NodeProperties from './NodeProperties_card';
-import EdgeProperties from './EdgeProperties_card';
+import ElementProperties from './ElementProperties';
 import { styled } from '@mui/system';
-import { Box } from '@mui/material';
+import { Box, Typography  } from '@mui/material';
 import { updateElement } from '../../state/reducers/globalReducer'; // Import the updateElement action
+import { useEffect, useState } from 'react';
+import VehicleTypeNodePropertyCard from './VehicleTypeNodeProperty_card'; // Import the new component
 
 const PropertiesSidebarContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -19,6 +20,8 @@ const PropertiesSidebar = () => {
   const selectedElementType = useSelector((state) => state.user.selectedElement.elementType);
   const project = useSelector((state) => state.global.project);
   const layoutId = useSelector((state) => state.user.selectedLayoutId);
+  const [vehicleTypeNodeProperties, setVehicleTypeNodeProperties] = useState([]);
+
 
   const selectedElement = project.layouts
     .flatMap(layout => layout.nodes.concat(layout.edges))
@@ -29,25 +32,25 @@ const PropertiesSidebar = () => {
     dispatch(updateElement({ layoutId, elementId: id, newData })); // Dispatch the updateElement action
   };
 
+  
+
+  useEffect(() => {
+    if (selectedElement) {
+      setVehicleTypeNodeProperties(selectedElement.vehicleTypeNodeProperties || []);
+    }
+  }, [selectedElement]);
+
   return (
     <PropertiesSidebarContainer>
-      {selectedElementType ? (
-        selectedElementType === 'node' ? (
-          <NodeProperties
-            selectedElement={selectedElement}
-            updateElement={handleElementUpdate}
-          />
-        ) : (
-          <EdgeProperties
-            selectedElement={selectedElement}
-            updateElement={handleElementUpdate}
-            project={project}
-          />
-        )
-      ) : (
-        "No element selected"
-      )}
-    </PropertiesSidebarContainer>
+    {selectedElementType ? (
+      <ElementProperties
+        element={selectedElement}
+        updateElement={handleElementUpdate}
+      />
+    ) : (
+      "No element selected"
+    )}
+  </PropertiesSidebarContainer>
   );
 };
 
