@@ -3,10 +3,10 @@ import React from 'react';
 import { Box } from '@mui/material';
 import { styled } from '@mui/system';
 
-import Canvas from './components/canvas_components/Canvas';
-import ToolPanel from './components/canvas_components/ToolPanel';
-import PropertiesSidebar from './components/sidebar_components/Properties_sidebar';
-import AppBarComponent from './components/appbar_components/AppBar';
+import Canvas from './features/canvas_components/Canvas';
+import ToolPanel from './features/canvas_components/ToolPanel';
+import PropertiesSidebar from './features/sidebar_components/Properties_sidebar';
+import AppBarComponent from './features/appbar_components/AppBar';
 
 import { CyProvider } from './contexts/CytoContext';
 import { ToolProvider } from './contexts/ToolContext';
