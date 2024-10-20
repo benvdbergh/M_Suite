@@ -13,6 +13,9 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import VehicleTypeNodePropertyCard from "./VehicleTypeNodeProperty_card";
 import useElementProperties from "../../hooks/useElementProperties";
 
+import TextProperty from "../../components/TextProperty";
+import NumberProperty from "../../components/NumberProperty";
+
 const NodePropertiesCard = ({ selectedElement, updateElement }) => {
 	const {
 		name,
@@ -30,6 +33,7 @@ const NodePropertiesCard = ({ selectedElement, updateElement }) => {
 
 	const [isSectionExpanded, setIsSectionExpanded] = useState(true);
 
+
 	return (
 		<Box>
 			<Accordion
@@ -40,32 +44,25 @@ const NodePropertiesCard = ({ selectedElement, updateElement }) => {
 					<Typography variant="h6">Node Info</Typography>
 				</AccordionSummary>
 				<AccordionDetails>
-					<TextField
+					<TextProperty
 						label="Node Id"
 						value={selectedElement?.nodeId}
-						fullWidth
 						disabled
-						margin="normal"
 					/>
-					<TextField
+					<TextProperty
 						label="Node Name"
 						value={name}
-						onChange={(e) => setName(e.target.value)}
 						onBlur={(e) => handleBlur("nodeName", e.target.value)}
-						fullWidth
-						margin="normal"
 					/>
-					<TextField
+					<TextProperty
+						property="nodeDescription"
 						label="Node Description"
 						value={description}
-						onChange={(e) => setDescription(e.target.value)}
 						onBlur={(e) => handleBlur("nodeDescription", e.target.value)}
-						fullWidth
-						margin="normal"
 						multiline
 						rows={3}
 					/>
-					<TextField
+					<NumberProperty
 						label="Node Position X"
 						type="number"
 						value={position?.x}

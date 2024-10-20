@@ -18,7 +18,9 @@ const useElementProperties = (selectedElement, updateElement) => {
 
 	const handleBlur = (field, value) => {
 		if (selectedElement) {
-			updateElement(selectedElement.id, { [field]: value });
+			console.log(field, value);
+			console.log(selectedElement);
+			updateElement(selectedElement.nodeId ? selectedElement.nodeId : selectedElement.edgeId, { [field]: value });
 		}
 	};
 

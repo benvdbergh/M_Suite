@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addNode, updateNodePosition, extendPath } from '../state/reducers/globalReducer';
 import { setSelectedElement } from '../state/reducers/userReducer';
 import { useTool } from './ToolContext';
+import { useTheme } from '@mui/material/styles';
 
 import { Layout } from '../state/models/Layout';
 import ToolTypes from '../constants/ToolTypes'; 
@@ -20,6 +21,7 @@ gridGuide(cytoscape);
 cxtmenu(cytoscape);
 
 export const CyProvider = ({ children }) => {
+  const theme = useTheme();
   const cyRef = useRef(null);
   const [cyInstance, setCyInstance] = useState(null);
   const [drawingPath, setDrawingPath] = useState(false);
@@ -33,17 +35,40 @@ export const CyProvider = ({ children }) => {
   const initialized = useRef(false);
 
   useEffect(() => {
+    if (cyRef.current) {
+      // Apply theme background color to the canvas container
+      cyRef.current.style.backgroundColor = theme.palette.background.default;
+    }
+  }, [theme]);
+
+  useEffect(() => {
+
     if (!initialized.current && cyRef.current) {
       const layout = selectedLayoutId ? project.layouts.find(l => l.layoutId === selectedLayoutId) : null;  
       console.log('Init Layout:', layout);
       const elements = layout ? Layout.toCytoscape(layout) : [];
 
       const cy = cytoscape({
-        container: cyRef.current,
-        elements: elements,
-        style: cytoscapeStyles,
-        layout: { name: 'preset' }
-      });
+				container: cyRef.current,
+				elements: elements,
+				style: [
+					...cytoscapeStyles,
+					{
+						selector: "node",
+						style: {
+							"background-color": theme.palette.primary.main, // Use primary color for nodes
+							color: theme.palette.text.primary,
+						},
+					},
+					{
+						selector: "edge",
+						style: {
+							"line-color": theme.palette.divider,
+						},
+					},
+				],
+				layout: { name: "preset" },
+			});
 
       console.log('Cy instance:', cy);
       setCyInstance(cy);
@@ -62,7 +87,22 @@ export const CyProvider = ({ children }) => {
         cyInstance.batch(() => {
           cyInstance.elements().remove();
           cyInstance.add(elements);
-          cyInstance.style(cytoscapeStyles);
+          cyInstance.style([
+						...cytoscapeStyles,
+						{
+							selector: "node",
+							style: {
+								"background-color": theme.palette.primary.main,
+								color: theme.palette.text.primary,
+							},
+						},
+						{
+							selector: "edge",
+							style: {
+								"line-color": theme.palette.divider,
+							},
+						},
+					]);
         });
       } else {
         console.warn("No elements to update in cyInstance");

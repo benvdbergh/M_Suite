@@ -22,8 +22,6 @@ export const cytoscapeStyles = [
       'control-point-step-size': 40,
       'target-arrow-shape': 'data(targetArrowShape)',
       'source-arrow-shape': 'data(sourceArrowShape)',
-      'source-arrow-color': '#ccc',
-      'target-arrow-color': '#ccc',
     }
   },
   {
@@ -31,8 +29,6 @@ export const cytoscapeStyles = [
     style: {
       'background-color': primaryColor,
       'line-color': primaryColor,
-      'source-arrow-color': primaryColor,
-      'target-arrow-color': primaryColor,
     }
   }
 ];
