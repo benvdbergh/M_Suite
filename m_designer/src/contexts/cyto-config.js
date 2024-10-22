@@ -35,15 +35,15 @@ export const cytoscapeStyles = [
 
 export const gridOptions = {
   snapToGridOnRelease: true,
-  snapToGridDuringDrag: true,
+  snapToGridDuringDrag: false,
   gridSpacing: 40,
   snapToGridCenter: false,
   drawGrid: true,
   zoomDash: true,
   panGrid: true,
-  gridStackOrder: 0,
+  gridStackOrder: 1,
   gridColor: '#dedede',
-  lineWidth: 1.0,
+  lineWidth: 0.5,
 };
 
 export const cxtMenuOptions = (updateElement) => ({
