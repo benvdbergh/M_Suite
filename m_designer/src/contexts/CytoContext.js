@@ -4,7 +4,7 @@ import cytoscape from 'cytoscape';
 // import { cytoscapeStyles, gridOptions, cxtMenuOptions } from './cyto-config';
 import { cytoscapeStyles, gridOptions } from './cyto-config';
 import { useDispatch, useSelector } from 'react-redux';
-import { addNode, updateNodePosition, extendPath } from '../state/reducers/globalReducer';
+import { addNode, updateNodePosition, extendPath, extendPathFromNode, closePath } from '../state/reducers/globalReducer';
 import { setSelectedElement } from '../state/reducers/userReducer';
 import { useTool } from './ToolContext';
 import { useTheme } from '@mui/material/styles';
@@ -25,6 +25,7 @@ export const CyProvider = ({ children }) => {
   const cyRef = useRef(null);
   const [cyInstance, setCyInstance] = useState(null);
   const [drawingPath, setDrawingPath] = useState(false);
+  const [lastNode, setLastNode] = useState(null);
   const selectedTool = useTool().selectedTool;
   const setSeletedTool = useTool().setSelectedTool;
 
@@ -119,6 +120,19 @@ export const CyProvider = ({ children }) => {
               dispatch(setSelectedElement({projectId, layoutId, elementType: "node", elementId: node.id()}));
               break;
             case ToolTypes.DRAW_PATH:
+              // First node tapped, stargin a new path from existing node
+              if (!drawingPath) {
+                if (!lastNode) {
+                  setLastNode(node.id());
+								  setDrawingPath(true);
+                }
+              }
+              // Last node tapped, close the path to the existing node (last node can be null)
+              else {
+                dispatch(closePath({ layoutId, lastNodeId: lastNode, endNodeId: node.id() }));
+                setLastNode(null);
+                setDrawingPath(false);
+              }
               break;
             default:
               break;
@@ -146,11 +160,14 @@ export const CyProvider = ({ children }) => {
               dispatch(addNode({layoutId, position}));
               break;
             case ToolTypes.DRAW_PATH:
-              if (!drawingPath) {
+              if (!drawingPath && !lastNode) {
                 dispatch(addNode({ layoutId, position }));
                 setDrawingPath(true);
-              } else {
+              } else if (drawingPath && !lastNode) {
                 dispatch(extendPath({ layoutId, position }));
+              } else if (drawingPath && lastNode) {
+                dispatch(extendPathFromNode({ layoutId, position, nodeId: lastNode }));
+                setLastNode(null);
               }
               break;
             default:
