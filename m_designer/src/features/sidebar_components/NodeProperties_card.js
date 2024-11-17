@@ -11,7 +11,7 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import VehicleTypeNodePropertyCard from "./VehicleTypeNodeProperty_card";
-import useElementProperties from "../../hooks/useElementProperties";
+import useElementProperties from "../../hooks/properties/useElementProperties";
 
 import TextProperty from "../../components/TextProperty";
 import NumberProperty from "../../components/NumberProperty";

@@ -11,7 +11,6 @@ const LayoutDropdownContainer = styled('div')(({ theme }) => ({
   '&:hover': {
     backgroundColor: alpha(theme.palette.common.white, 0.25),
   },
-  marginLeft: 0,
   width: '100%',
   [theme.breakpoints.up('sm')]: {
     marginLeft: theme.spacing(1),
@@ -60,7 +59,6 @@ const LayoutDropdown = () => {
             {layout?.layoutName}
           </MenuItem>
         ))}
-        <MenuItem value="create-new">Create New Layout</MenuItem>
       </Select>
     </LayoutDropdownContainer>
   );

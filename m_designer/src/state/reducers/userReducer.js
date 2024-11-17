@@ -8,6 +8,7 @@ const initialState = {
     elementType: null,
     elementId: null
   },
+  selectedVehicleTypeId: null,
   // Add other user-specific states here
 };
 
@@ -20,7 +21,7 @@ const userSlice = createSlice({
       draft.selectedProjectId = projectId;
       draft.selectedLayoutId = layoutId;
     }),
-    setSelectedElement(state, action) {
+    setSelectedElement : produce((state, action) => {
       const { projectId, layoutId, elementType, elementId } = action.payload;
     
       if (projectId === state.selectedProjectId && layoutId === state.selectedLayoutId) {
@@ -28,9 +29,15 @@ const userSlice = createSlice({
         state.selectedElement.elementType = elementType;
         state.selectedElement.elementId = elementId;
       }
-    },
+    }),
+    setSelectedVehicleTypeId : produce((state, action) => {
+      const { projectId, layoutId, vehicleTypeId } = action.payload;
+      if (projectId === state.selectedProjectId && layoutId === state.selectedLayoutId) {
+        state.selectedVehicleType = vehicleTypeId;
+      }
+    }),
   },
 });
 
-export const { setSelectedLayoutId, setSelectedElement } = userSlice.actions;
+export const { setSelectedLayoutId, setSelectedElement, setSelectedVehicleType } = userSlice.actions;
 export default userSlice.reducer;

@@ -67,39 +67,42 @@ const AppBarComponent = () => {
 
 
   return (
-    <AppBar position="static">
-      <Toolbar>
-        <Typography variant="h6" noWrap component="div" sx={{ mr: 2 }}>
-          Logo
-        </Typography>
-        <Box sx={{ display: { xs: 'none', md: 'flex' }, mr: 2 }}>
-          <Button color="inherit" onClick={handleMenuOpen}>Project</Button>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-          >
-            <MenuItem onClick={handleExport}>Export</MenuItem>
-            <MenuItem onClick={handleNewProject}>New Project</MenuItem>
-          </Menu>
-          <Button color="inherit">View</Button>
-        </Box>
-        <Box sx={{ flexGrow: 1 }} />
-        <LayoutDropdown />
-        <SearchBar />
-        <IconButton edge="end" color="inherit">
-          <AccountCircle />
-        </IconButton>
-      </Toolbar>
-      <ConfirmDialog
-        open={dialogOpen}
-        message="Are you sure you want to start a new project? Unsaved changes will be lost."
-        handleConfirm={handleConfirmNewProject}
-        handleClose={handleCloseDialog}
-        handleNo={handleCloseDialog}
-      />
-    </AppBar>
-  );
+		<AppBar position="static">
+			<Toolbar>
+				<Typography variant="h6" noWrap component="div" sx={{ mr: 2 }}>
+					Logo
+				</Typography>
+				<Box sx={{ display: { xs: "none", md: "flex" }, mr: 2 }}>
+					<Button color="inherit" onClick={handleMenuOpen}>
+						Project
+					</Button>
+					<Menu
+						anchorEl={anchorEl}
+						open={Boolean(anchorEl)}
+						onClose={handleMenuClose}
+					>
+						<MenuItem onClick={handleExport}>Export</MenuItem>
+						<MenuItem onClick={handleNewProject}>New Project</MenuItem>
+					</Menu>
+					<Button color="inherit">View</Button>
+				</Box>
+
+				<LayoutDropdown />
+				<Box sx={{ flexGrow: 1 }} />
+				<SearchBar />
+				<IconButton edge="end" color="inherit">
+					<AccountCircle />
+				</IconButton>
+			</Toolbar>
+			<ConfirmDialog
+				open={dialogOpen}
+				message="Are you sure you want to start a new project? Unsaved changes will be lost."
+				handleConfirm={handleConfirmNewProject}
+				handleClose={handleCloseDialog}
+				handleNo={handleCloseDialog}
+			/>
+		</AppBar>
+	);
 };
 
 export default AppBarComponent;

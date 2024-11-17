@@ -13,7 +13,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import VehicleTypeEdgePropertyCard from './VehicleTypeEdgeProperty_card';
-import useElementProperties from '../../hooks/useElementProperties';
+import useElementProperties from '../../hooks/properties/useElementProperties';
 
 const EdgePropertiesCard = ({ selectedElement, updateElement, project }) => {
 	const {

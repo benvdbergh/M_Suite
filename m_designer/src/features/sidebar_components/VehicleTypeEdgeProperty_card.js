@@ -13,7 +13,7 @@ import {
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import ActionPropertiesCard from "./Action_card";
-import useVehicleTypeProperty from "../../hooks/useVehicleTypeProperty";
+import useVehicleTypeProperty from "../../hooks/properties/useVehicleTypeProperty";
 
 const VehicleTypeEdgePropertyCard = ({
 	property,
