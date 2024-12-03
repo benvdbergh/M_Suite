@@ -1,0 +1,7 @@
+deployment:
+  - environment: "AWS"
+    services:
+      - name: "User Service"
+        container: "Docker"
+        replicas: 2
+        load_balancer: "Elastic Load Balancer"

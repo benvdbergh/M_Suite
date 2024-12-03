@@ -1,0 +1,5 @@
+use_cases:
+  - name: "Order Management"
+    actors: ["Customer", "Admin"]
+    actions: ["Create Order", "Update Order", "Cancel Order"]
+    outcomes: ["Order created and stored", "Notifications sent"]

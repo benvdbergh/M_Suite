@@ -1,0 +1,42 @@
+modules:
+  - name: "User Service"
+    responsibilities:
+      - "Manage user authentication"
+      - "Handle user data"
+    exposed_apis:
+      - endpoint: "/users/login"
+        method: "POST"
+        input: {username: "string", password: "string"}
+        output: {token: "string"}
+  - name: "Order Service"
+    responsibilities:
+      - "Handle order creation and management"
+    exposed_apis:
+      - endpoint: "/orders"
+        method: "POST"
+        input: {user_id: "string", items: "array"}
+        output: {order_id: "string"}
+  - name: "Traffic Service"
+    responsibilities:
+      - "Handle traffic management"
+    exposed_apis:
+      - endpoint: "/traffic"
+        method: "POST"
+        input: {user_id: "string", order_id: "string", items: "array"}
+        output: {status: "string"}
+  - name: "Notification Service"
+    responsibilities:
+      - "Handle notifications"
+    exposed_apis:
+      - endpoint: "/notifications"
+        method: "POST"
+        input: {user_id: "string", order_id: "string", items: "array"}
+        output: {status: "string"}
+  - name: "Layout designer"
+    responsibilities:
+      - "Handle layout design"
+    exposed_apis:
+      - endpoint: "/layout/{id}"
+        method: "GET"
+        input: {user_id: "string", layoutid: "string"}
+        output: { "layout": ...}

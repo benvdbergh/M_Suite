@@ -1,0 +1,4 @@
+non_functional_requirements:
+  - scalability: "Handle 10,000 concurrent users"
+  - availability: "99.9% uptime"
+  - security: "OAuth2 for authentication"

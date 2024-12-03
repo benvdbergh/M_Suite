@@ -1,0 +1,13 @@
+entities:
+  - name: "User"
+    attributes:
+      - name: "user_id"
+        type: "UUID"
+      - name: "email"
+        type: "string"
+  - name: "Order"
+    attributes:
+      - name: "order_id"
+        type: "UUID"
+      - name: "user_id"
+        type: "UUID"

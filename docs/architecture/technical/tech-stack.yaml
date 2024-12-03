@@ -1,0 +1,7 @@
+technology_stack:
+  frontend: ["React.js", "Redux"]
+  backend: ["Python", "Django"]
+  database: ["PostgreSQL"]
+  load_balancer: ["Nginx"]
+  message_queue: ["RabbitMQ"]
+  caching: ["Redis"]
