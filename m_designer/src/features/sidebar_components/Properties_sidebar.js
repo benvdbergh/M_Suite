@@ -15,13 +15,13 @@ const PropertiesSidebar = () => {
   const dispatch = useDispatch();
   const selectedElementId = useSelector((state) => state.user.selectedElement.elementId);
   const selectedElementType = useSelector((state) => state.user.selectedElement.elementType);
-  const project = useSelector((state) => state.global.project);
+
+  const layouts = useSelector((state) => state.global.layouts);
   const layoutId = useSelector((state) => state.user.selectedLayoutId);
+  const nodes = useSelector((state) => state.global.nodes);
+  const edges = useSelector((state) => state.global.edges);
 
-
-  const selectedElement = project.layouts
-    .flatMap(layout => layout.nodes.concat(layout.edges))
-    .find(element => element.nodeId === selectedElementId || element.edgeId === selectedElementId);
+  const selectedElement = nodes[selectedElementId] || edges[selectedElementId];
 
   const handleElementUpdate = (id, newData) => {
     console.trace('Element updated: ', id, newData);
@@ -35,13 +35,11 @@ const PropertiesSidebar = () => {
           <EdgePropertiesCard
             selectedElement={selectedElement}
             updateElement={handleElementUpdate}
-            project={project}
           />
         ) : selectedElementType === 'node' ? (
           <NodePropertiesCard
             selectedElement={selectedElement}
             updateElement={handleElementUpdate}
-            project={project}
           />
         ) : null
       ) : (

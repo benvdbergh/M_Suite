@@ -52,7 +52,7 @@ const NodePropertiesCard = ({ selectedElement, updateElement }) => {
 					<TextProperty
 						label="Node Name"
 						value={name}
-						onBlur={(e) => handleBlur("nodeName", e.target.value)}
+						onBlur={(e) => handleBlur("nodeName", e.target.value, selectedElement)}
 					/>
 					<TextProperty
 						property="nodeDescription"

@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 
 const useVehicleTypeProperty = (property, updateElement, nodeId) => {
+	const [vehicleTypeId, setVehicleTypeId] = useState(property.vehicleTypeId || "");
+	const [theta, setTheta] = useState(property.theta || 0);
 	const [actions, setActions] = useState(property.actions || []);
 
 	useEffect(() => {
@@ -45,6 +47,10 @@ const useVehicleTypeProperty = (property, updateElement, nodeId) => {
 	};
 
 	return {
+		vehicleTypeId,
+		setVehicleTypeId,
+		theta,
+		setTheta,
 		actions,
 		handleBlur,
 		updateAction,

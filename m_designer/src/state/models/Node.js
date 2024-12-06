@@ -10,6 +10,36 @@ export class Node {
       this.vehicleTypeNodeProperties = VehicleTypeNodeProperty.fromJSON(vehicleTypeNodeProperties);
     }
 
+    static addNode(nodes, nodePosition) {
+      if (!nodes) {
+        console.warn('Node.addNode called with null nodes:', nodes);
+        return nodes;
+      }
+      if (nodePosition === null || nodePosition.x === null || nodePosition.y === null) {
+        console.warn('Node.addNode called with invalid position:', nodePosition);
+        return nodes;
+      }
+      var id = Object.keys(nodes).length + 2;
+      while (Object.keys(nodes).find(key => key === `node-${id}`)) {
+        id++;
+      }
+
+      const nodeId = `node-${Object.keys(nodes).length + 1}`;
+      const nodeName = `Node ${Object.keys(nodes).length + 1}`;
+      const newNode = {
+        nodeId: nodeId,
+        nodeName: nodeName,
+        nodePosition: { x: nodePosition.x, y: nodePosition.y },
+        nodeDescription: null,
+        mapId: null,
+        vehicleTypeNodeProperties: null,
+      
+      };
+
+      nodes[nodeId] = newNode;
+      return newNode;
+    };
+
     static moveNode(node, newPosition) {
       if (!node || !newPosition) {
         console.warn('Node.moveNode called with invalid node or newPosition:', node, newPosition);
@@ -21,7 +51,7 @@ export class Node {
       }
       node.nodePosition = { x: newPosition.x, y: newPosition.y };
       return node;
-    }
+    };
 
     static fromJSON(json) {
       console.log('Node.fromJSON called with json:', json);
@@ -35,7 +65,7 @@ export class Node {
         json.mapId,
         vehicleTypeNodeProperties
       );
-    }
+    };
   
     toJSON() {
       return {
@@ -46,7 +76,7 @@ export class Node {
         nodePosition: this.nodePosition.toJSON(),
         vehicleTypeNodeProperties: this.vehicleTypeNodeProperties ? this.vehicleTypeNodeProperties.map(prop => prop.toJSON()) : []
       };
-    }
+    };
 
     static toCytoscape(node) {
       if (!node) {

@@ -38,90 +38,25 @@ export class Layout {
     return [layout, newNode];
   }
 
-  static addEdge(layout, startNodeId, endNodeId) {
-    if (!layout) {
-      console.warn('Layout.addEdge called with null layout:', layout);
-      return layout;
-    }
-    if (!startNodeId || !endNodeId) {
-      console.warn('Layout.addEdge called with invalid node ids:', startNodeId, endNodeId);
-      return layout;
-    }
+  
 
-    const edgeId = `edge-${layout.edges.length + 1}`;
-    const edgeName = `Edge ${layout.edges.length + 1}`;
-    const newEdge = {
-      edgeId: edgeId,
-      edgeName: edgeName,
-      startNodeId: startNodeId,
-      endNodeId: endNodeId,
-      edgeDescription: null,
+  static toCytoscape(nodes, edges, stations) {
+    if (!nodes) {
+      console.log('Layout.toCytoscape called with null nodes', nodes);
     };
-    layout.edges.push(newEdge);
-    return [layout, newEdge];
-  }
-
-  static edgesToCytoscape(edges) {
-    const cyto_edges = [];
-
-    if (edges.length > 0) {
-      edges.forEach(edge => {
-        const existingEdge = cyto_edges.find(cyto_edge =>
-          (cyto_edge.data.source === edge.startNodeId && cyto_edge.data.target === edge.endNodeId)
-        );
-
-        const existingEdgeBidirectional = cyto_edges.find(cyto_edge =>
-          (cyto_edge.data.source === edge.endNodeId && cyto_edge.data.target === edge.startNodeId)
-        );
-        
-        if (existingEdgeBidirectional) {
-          existingEdgeBidirectional.data.bidirectional = true;
-          existingEdgeBidirectional.data.sourceArrowShape = 'triangle';
-        } else if (!existingEdge && edge.startNodeId && edge.endNodeId) {
-          const cyto_edge = {
-            group: 'edges',
-            id: edge.edgeId,
-            data: {
-              id: edge.edgeId,
-              source: edge.startNodeId,
-              target: edge.endNodeId,
-              label: edge.edgeName,
-              description: edge.edgeDescription,
-              bidirectional: false,
-              sourceArrowShape: 'none',
-              targetArrowShape: 'triangle',
-            }
-          };
-          
-          cyto_edges.push(cyto_edge);
-        }
-      });
-      return cyto_edges;
-    }
-    return [];
-  }
-
-  static toCytoscape(layout) {
-    if (!layout) {
-      console.log('Layout.toCytoscape called with null layout', layout);
-      return [];
-    }
 
     const cyto_layout = [];
 
-    if (layout.nodes) {
-      cyto_layout.push(...layout.nodes.map(node => Node.toCytoscape(node)));
-
-      if (layout.edges) {
-        cyto_layout.push(...Layout.edgesToCytoscape(layout.edges));
+    if (nodes) {
+      cyto_layout.push(...Object.values(nodes).map(node => Node.toCytoscape(node)));
+      if (edges) {
+        cyto_layout.push(...Edge.edgesToCytoscape(Object.values(edges)));
       }
-      if (layout.stations) {
+      if (stations) {
         // cyto_layout.push(...Layout.stations.map(station => Station.toCytoscape(station)));
       }
       return cyto_layout;
     }
-
-    console.warn('Layout.toCytoscape but layout has no nodes:', layout);
     return [];
   }
 

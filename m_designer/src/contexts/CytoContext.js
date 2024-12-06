@@ -10,6 +10,8 @@ import { useTool } from './ToolContext';
 import { useTheme } from '@mui/material/styles';
 
 import { Layout } from '../state/models/Layout';
+import { Node } from '../state/models/Node';
+import { Edge } from '../state/models/Edge';
 import ToolTypes from '../constants/ToolTypes'; 
 
 const CyContext = createContext();
@@ -30,8 +32,12 @@ export const CyProvider = ({ children }) => {
   const setSeletedTool = useTool().setSelectedTool;
 
   const dispatch = useDispatch();
-  const project = useSelector((state) => state.global.project);
   const selectedLayoutId = useSelector((state) => state.user.selectedLayoutId);
+  const layouts = useSelector((state) => state.global.layouts);
+  const nodes = useSelector((state) => state.global.nodes);
+  const edges = useSelector((state) => state.global.edges);
+  const stations = useSelector((state) => state.global.stations);
+  const metaInformation = useSelector((state) => state.global.projectMetaInformation);
 
   const initialized = useRef(false);
 
@@ -44,11 +50,22 @@ export const CyProvider = ({ children }) => {
 
   useEffect(() => {
 
-    if (!initialized.current && cyRef.current) {
-      const layout = selectedLayoutId ? project.layouts.find(l => l.layoutId === selectedLayoutId) : null;  
-      console.log('Init Layout:', layout);
-      const elements = layout ? Layout.toCytoscape(layout) : [];
-
+    if (!initialized.current && cyRef.current && layouts) {
+      const layout = selectedLayoutId && layouts[selectedLayoutId] ? layouts[selectedLayoutId] : null;
+      console.log("selectedLayoutId", selectedLayoutId)
+      const elements = [];
+      // const elements = layout ? Layout.toCytoscape(layout) : [];
+      if (nodes) {
+        Object.values(nodes).forEach(node => {
+          elements.push(Node.toCytoscape(node));
+        });
+      }
+      if (edges) {
+        Object.values(edges).forEach(edge => {
+          elements.push(Edge.edgesToCytoscape(edge));
+        });
+      }
+      
       const cy = cytoscape({
 				container: cyRef.current,
 				elements: elements,
@@ -75,14 +92,15 @@ export const CyProvider = ({ children }) => {
       setCyInstance(cy);
       initialized.current = true;
     }
-  }, [project, selectedLayoutId]);
+  }, [selectedLayoutId, layouts, metaInformation]);
 
   useEffect(() => {
     if (cyInstance) {
-      const projectId = project.metaInformation.projectIdentification;
+      const projectId = metaInformation.projectIdentification;
       const layoutId = selectedLayoutId;
-      const layout = project.layouts.find(l => l.layoutId === selectedLayoutId);
-      const elements = layout ? Layout.toCytoscape(layout) : [];
+      const layout = layouts[layoutId];
+
+      const elements = layout ? Layout.toCytoscape(nodes, edges, stations) : [];
       
       if (elements) {
         cyInstance.batch(() => {
@@ -129,7 +147,8 @@ export const CyProvider = ({ children }) => {
               }
               // Last node tapped, close the path to the existing node (last node can be null)
               else {
-                dispatch(closePath({ layoutId, lastNodeId: lastNode, endNodeId: node.id() }));
+                console.log('closePath', lastNode, node.id());
+                dispatch(closePath({ lastNodeId: lastNode, endNodeId: node.id() }));
                 setLastNode(null);
                 setDrawingPath(false);
               }
@@ -157,7 +176,7 @@ export const CyProvider = ({ children }) => {
               dispatch(setSelectedElement({projectId, layoutId, elementType: null, elementId: null}));
               break;
             case ToolTypes.DRAW_NODE:
-              dispatch(addNode({layoutId, position}));
+              dispatch(addNode({nodes, position}));
               break;
             case ToolTypes.DRAW_PATH:
               if (!drawingPath && !lastNode) {
@@ -166,7 +185,7 @@ export const CyProvider = ({ children }) => {
               } else if (drawingPath && !lastNode) {
                 dispatch(extendPath({ layoutId, position }));
               } else if (drawingPath && lastNode) {
-                dispatch(extendPathFromNode({ layoutId, position, nodeId: lastNode }));
+                dispatch(extendPathFromNode({ position, nodeId: lastNode }));
                 setLastNode(null);
               }
               break;
@@ -212,7 +231,7 @@ export const CyProvider = ({ children }) => {
       };
     }
 
-  }, [cyInstance, project, selectedLayoutId, selectedTool, drawingPath, setSeletedTool, dispatch]);
+  }, [cyInstance, layouts, selectedLayoutId, selectedTool, drawingPath, setSeletedTool, nodes, edges, stations, dispatch]);
 
   return (
     <CyContext.Provider value={{ cyInstance, cyRef }}>

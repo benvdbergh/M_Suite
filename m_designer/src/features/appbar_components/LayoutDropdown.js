@@ -20,13 +20,16 @@ const LayoutDropdownContainer = styled('div')(({ theme }) => ({
 
 const LayoutDropdown = () => {
   const project = useSelector((state) => state.global.project);
+  const metaInformation = useSelector((state) => state.global.projectMetaInformation);
   const selectedLayout = useSelector((state) => state.user.selectedLayout);
+  const layouts = useSelector((state) => state.global.layouts);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (project && project.layouts.length > 0) {
-      const projectId = project.metaInformation.projectIdentification;
-      const layoutId = project.layouts[0].layoutId;
+    console.log('layouts from dropdown', layouts)
+    if (Object.keys(layouts).length > 0 && metaInformation) {
+      const projectId = metaInformation.projectIdentification;
+      const layoutId = Object.keys(layouts)[0];
       dispatch(setSelectedLayoutId({ projectId, layoutId }));
     }
   }, [project]);
@@ -36,9 +39,11 @@ const LayoutDropdown = () => {
       // Handle creating a new layout
     } else {
       console.log('Changing to layout:', layoutId);
-      const projectId = project.metaInformation.projectIdentification;
-      const layoutId = project.layouts.find(layout => layout.layoutId === layoutId).layoutId;
-      dispatch(setSelectedLayoutId({ projectId, layoutId }));
+      const projectId = metaInformation.projectIdentification;
+      const layoutId = layouts.find(layout => layout.layoutId === layoutId).layoutId;
+      if (layouts[layoutId]) {
+        dispatch(setSelectedLayoutId({ projectId, layoutId }));
+      }
     }
   };
 
@@ -54,7 +59,7 @@ const LayoutDropdown = () => {
         value={selectedLayout ? selectedLayout.layoutId : (project.layouts.length > 0 ? project.layouts[0].layoutId : '')}
         size='small'
       >
-        {project.layouts.map((layout, index) => (
+        {layouts.map((layout, index) => (
           <MenuItem key={index} value={layout?.layoutId}>
             {layout?.layoutName}
           </MenuItem>

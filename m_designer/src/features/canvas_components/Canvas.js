@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCy } from '../../contexts/CytoContext';
 import ZoomControls from './ZoomControls';
+import VechicleTypeDropdown from './VehicleTypeDropdown';
 import { Box } from '@mui/material';
 import { styled } from '@mui/system';
 
@@ -26,6 +27,7 @@ const Canvas = () => {
     <CanvasContainer>
       <CytoCanvas ref={cyRef}></CytoCanvas>
       <ZoomControls />
+      <VechicleTypeDropdown />
     </CanvasContainer>
   );
 };

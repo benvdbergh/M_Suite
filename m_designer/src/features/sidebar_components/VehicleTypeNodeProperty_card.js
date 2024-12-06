@@ -19,7 +19,7 @@ const VehicleTypeNodePropertyCard = ({
 	id,
 	removeParameter,
 }) => {
-	const { actions, handleBlur, updateAction, addAction, removeAction } =
+	const { vehicleTypeId, setVehicleTypeId, theta, setTheta, actions, handleBlur, updateAction, addAction } =
 		useVehicleTypeProperty(property, updateElement, nodeId);
 
 	return (
@@ -36,7 +36,7 @@ const VehicleTypeNodePropertyCard = ({
 				<TextField
 					label="Vehicle Type ID"
 					value={property.vehicleTypeId}
-					onChange={(e) => handleBlur("vehicleTypeId", e.target.value)}
+					onBlur={(e) => handleBlur("vehicleTypeId", e.target.value)}
 					fullWidth
 					margin="normal"
 				/>
@@ -44,7 +44,7 @@ const VehicleTypeNodePropertyCard = ({
 					label="Theta"
 					type="number"
 					value={property.theta}
-					onChange={(e) => handleBlur("theta", e.target.value)}
+					onBlur={(e) => handleBlur("theta", e.target.value)}
 					fullWidth
 					margin="normal"
 				/>
