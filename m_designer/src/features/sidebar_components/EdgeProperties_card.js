@@ -15,7 +15,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import VehicleTypeEdgePropertyCard from './VehicleTypeEdgeProperty_card';
 import useElementProperties from '../../hooks/properties/useElementProperties';
 
-const EdgePropertiesCard = ({ selectedElement, updateElement, project }) => {
+const EdgePropertiesCard = ({ selectedElement, updateElement, nodes }) => {
 	const {
 		name,
 		setName,
@@ -30,20 +30,21 @@ const EdgePropertiesCard = ({ selectedElement, updateElement, project }) => {
 
 	const [nodeOptions, setNodeOptions] = useState([]);
 	const [startNode, setStartNode] = useState(null);
-  const [endNode, setEndNode] = useState(null);
+  	const [endNode, setEndNode] = useState(null);
   
 	const [isSectionExpanded, setIsSectionExpanded] = useState(true);
 
 	useEffect(() => {
-		if (project) {
+		if (nodes) {
 			setNodeOptions(
-				project.layouts[0].nodes.map((node) => ({
-					label: node.nodeName,
-					id: node.nodeId,
+				Object.values(nodes).map((nodeData) => ({
+					label: nodeData.nodeName,
+					id: nodeData.nodeId,
 				}))
 			);
 		}
-  }, [project]);
+	}, [nodes]);
+
   
   useEffect(() => {
     if (selectedElement) { 

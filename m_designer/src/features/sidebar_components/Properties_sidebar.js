@@ -35,6 +35,7 @@ const PropertiesSidebar = () => {
           <EdgePropertiesCard
             selectedElement={selectedElement}
             updateElement={handleElementUpdate}
+            nodes={nodes}
           />
         ) : selectedElementType === 'node' ? (
           <NodePropertiesCard
