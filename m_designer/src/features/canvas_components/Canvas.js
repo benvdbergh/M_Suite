@@ -11,6 +11,7 @@ const CanvasContainer = styled(Box)({
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
+  zIndex: 1,
 });
 
 const CytoCanvas = styled(Box)({

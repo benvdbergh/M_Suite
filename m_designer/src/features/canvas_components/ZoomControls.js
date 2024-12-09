@@ -12,6 +12,7 @@ const ZoomControlsContainer = styled(Box)(({ theme }) => ({
   right: theme.spacing(1),
   display: 'flex',
   flexDirection: 'column',
+  zIndex: 10,
 }));
 
 const ZoomControlsButton = styled(IconButton)(({ theme, active }) => ({

@@ -1,7 +1,7 @@
-import { React, useEffect, useState } from 'react';
+import { React, useEffect} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Select, MenuItem } from '@mui/material';
-import { setSelectedLayoutId } from '../../state/reducers/userReducer';
+import { setSelectedVehicleTypeId } from '../../state/reducers/userReducer';
 import { styled } from '@mui/system';
 import { Box } from '@mui/material';
 
@@ -11,15 +11,26 @@ const VehicleTypeDropdownContainer = styled(Box)(({ theme }) => ({
     left: theme.spacing(1),
     display: 'flex',
     flexDirection: 'column',
-  }));
+    zIndex: 10,
+}));
+  
+const ThemedSelect = styled(Select)(({ theme }) => ({
+	backgroundColor: theme.palette.background.paper, // Use theme's background color
+	borderRadius: theme.shape.borderRadius, // Use theme's border radius
+	boxShadow: theme.shadows[1], // Use theme's shadow for a subtle effect
+	"&:hover": {
+		backgroundColor: theme.palette.action.hover, // Change background on hover
+	},
+}));
 
-const VehicleTypeDropdown = () => {
-    const [selectedVehicleType, setSelectedVehicleType] = useState(null);
-    
+const VehicleTypeDropdown = () => {   
 
     const layouts = useSelector((state) => state.global.layouts);
+    const nodes = useSelector((state) => state.global.nodes);
+    const edges = useSelector((state) => state.global.edges);
     const metaInformation = useSelector((state) => state.global.projectMetaInformation);
     const selectedLayoutId = useSelector((state) => state.user.selectedLayoutId);
+    const selectedVehicleTypeId = useSelector((state) => state.user.selectedVehicleTypeId);
     const dispatch = useDispatch();
     var layout;
     
@@ -31,58 +42,55 @@ const VehicleTypeDropdown = () => {
         }
     }, [layouts, selectedLayoutId]);
 
-    const handleVehicleTypeChange = (vehicleTypeId) => {
-        
+    const handleVehicleTypeChange = (vehicleTypeId) => {        
         const projectId = metaInformation.projectIdentification;
-        dispatch(setSelectedVehicleType({ projectId, layoutId: selectedLayoutId, vehicleTypeId }));
+        dispatch(setSelectedVehicleTypeId({ projectId, layoutId: selectedLayoutId, vehicleTypeId }));
         
     };
 
     const getVehicleTypes = () => {
         const vehicleTypes = [];
-        if (layout) {
-            layout.nodes.forEach(node => {
-                if (node.vehicleTypeNodeProperties) {
-                    node.vehicleTypeNodeProperties.forEach(vehicleType => {
-                        vehicleTypes.push(vehicleType.vehicleTypeId);
-                    });
-                }
-            });
+        Object.values(nodes).forEach(node => {
+            if (node.vehicleTypeNodeProperties) {
+                node.vehicleTypeNodeProperties.forEach(vehicleType => {
+                    vehicleTypes.push(vehicleType.vehicleTypeId);
+                });
+            }
+        });
+        Object.values(edges).forEach(edge => {
+            if (edge.vehicleTypeEdgeProperties) {
+                edge.vehicleTypeEdgeProperties.forEach(vehicleType => {
+                    vehicleTypes.push(vehicleType.vehicleTypeId);
+                });
+            }
+        });
 
-            layout.edges.forEach(edge => {
-                if (edge.vehicleTypeEdgeProperties) {
-                    edge.vehicleTypeEdgeProperties.forEach(vehicleType => {
-                        vehicleTypes.push(vehicleType.vehicleTypeId);
-                    });
-                }
-            });
+        const defaultTypes = ['DIFF', 'OMNI', 'THREEWHEEL'];
+
+        if (vehicleTypes.length === 0) {
+            return defaultTypes;
+
         }
-        // console.assert(layout, 'Layout is null');
 
         return vehicleTypes;
     };
 
-    if (!layouts) {
-        return null;
-    }
-
-
     return (
-        <VehicleTypeDropdownContainer>
-            <Select
-                onChange={(e) => handleVehicleTypeChange(e.target.value)}
-                fullWidth
-                value={selectedVehicleType ? selectedVehicleType : ''}
-                size='small'
-            >
-                {getVehicleTypes().map((vehicleType, index) => (
-                    <MenuItem key={index} value={vehicleType}>
-                        {vehicleType}
-                    </MenuItem>
-                ))}
-            </Select>
-        </VehicleTypeDropdownContainer>
-    );
+			<VehicleTypeDropdownContainer>
+				<ThemedSelect
+					onChange={(e) => handleVehicleTypeChange(e.target.value)}
+					fullWidth
+					value={selectedVehicleTypeId}
+					size="small"
+				>
+					{getVehicleTypes().map((vehicleType) => (
+						<MenuItem key={vehicleType} value={vehicleType}>
+							{vehicleType}
+						</MenuItem>
+					))}
+				</ThemedSelect>
+			</VehicleTypeDropdownContainer>
+		);
 };
 
 export default VehicleTypeDropdown;
