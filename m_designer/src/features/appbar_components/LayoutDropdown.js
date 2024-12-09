@@ -19,7 +19,6 @@ const LayoutDropdownContainer = styled('div')(({ theme }) => ({
 }));
 
 const LayoutDropdown = () => {
-  const project = useSelector((state) => state.global.project);
   const metaInformation = useSelector((state) => state.global.projectMetaInformation);
   const selectedLayout = useSelector((state) => state.user.selectedLayout);
   const layouts = useSelector((state) => state.global.layouts);
@@ -32,22 +31,28 @@ const LayoutDropdown = () => {
       const layoutId = Object.keys(layouts)[0];
       dispatch(setSelectedLayoutId({ projectId, layoutId }));
     }
-  }, [project]);
+  }, [layouts, metaInformation, dispatch]);
 
-  const handleLayoutChange = (layoutId) => {
-    if (layoutId === 'create-new') {
+  const handleLayoutChange = (new_layoutId) => {
+    if (new_layoutId === 'create-new') {
       // Handle creating a new layout
     } else {
-      console.log('Changing to layout:', layoutId);
       const projectId = metaInformation.projectIdentification;
-      const layoutId = layouts.find(layout => layout.layoutId === layoutId).layoutId;
+      const layoutId = layouts[new_layoutId] ? new_layoutId : '';
       if (layouts[layoutId]) {
         dispatch(setSelectedLayoutId({ projectId, layoutId }));
       }
     }
   };
 
-  if (!project || !project.layouts) {
+  const selectLayout = (layouts, selectedLayout) => {
+    if (selectedLayout) {
+      return layouts[selectedLayout.layoutId] ? layouts[selectedLayout.layoutId] : null;
+    }
+    return layouts[Object.keys(layouts)[0]] ? layouts[Object.keys(layouts)[0]] : null;
+  };
+
+  if (!layouts || !metaInformation) {
     return null;
   }
 
@@ -56,10 +61,10 @@ const LayoutDropdown = () => {
       <Select
         onChange={(e) => handleLayoutChange(e.target.value)}
         fullWidth
-        value={selectedLayout ? selectedLayout.layoutId : (project.layouts.length > 0 ? project.layouts[0].layoutId : '')}
+        value={selectLayout(layouts, selectedLayout)}
         size='small'
       >
-        {layouts.map((layout, index) => (
+        {Object.entries(layouts).map((layout, index) => (
           <MenuItem key={index} value={layout?.layoutId}>
             {layout?.layoutName}
           </MenuItem>

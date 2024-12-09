@@ -39,6 +39,13 @@ export const CyProvider = ({ children }) => {
   const stations = useSelector((state) => state.global.stations);
   const metaInformation = useSelector((state) => state.global.projectMetaInformation);
 
+  console.log('selectedLayoutId: ', selectedLayoutId);
+  console.log('layouts: ', layouts);
+  console.log('nodes: ', nodes);
+  console.log('edges: ', edges);
+  console.log('stations: ', stations);
+  console.log('metaInformation: ', metaInformation);
+
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -51,7 +58,6 @@ export const CyProvider = ({ children }) => {
   useEffect(() => {
 
     if (!initialized.current && cyRef.current && layouts) {
-      const layout = selectedLayoutId && layouts[selectedLayoutId] ? layouts[selectedLayoutId] : null;
       console.log("selectedLayoutId", selectedLayoutId)
       const elements = [];
       // const elements = layout ? Layout.toCytoscape(layout) : [];
@@ -91,8 +97,11 @@ export const CyProvider = ({ children }) => {
       console.log('Cy instance:', cy);
       setCyInstance(cy);
       initialized.current = true;
+      const projectId = metaInformation.projectIdentification;
+			const layoutId = selectedLayoutId;
+      dispatch(setSelectedElement({projectId, layoutId, elementType: null, elementId: null}));
     }
-  }, [selectedLayoutId, layouts, metaInformation]);
+  }, [selectedLayoutId, layouts, metaInformation, nodes, edges, stations, theme, dispatch]);
 
   useEffect(() => {
     if (cyInstance) {
@@ -135,7 +144,10 @@ export const CyProvider = ({ children }) => {
     
           switch (selectedTool) { 
             case ToolTypes.SELECT:
-              dispatch(setSelectedElement({projectId, layoutId, elementType: "node", elementId: node.id()}));
+              if (node.id() in nodes) {
+                console.log('Node tapped:', node.id());
+                dispatch(setSelectedElement({projectId, layoutId, elementType: "node", elementId: node.id()}));
+              }
               break;
             case ToolTypes.DRAW_PATH:
               // First node tapped, stargin a new path from existing node
@@ -231,7 +243,7 @@ export const CyProvider = ({ children }) => {
       };
     }
 
-  }, [cyInstance, layouts, selectedLayoutId, selectedTool, drawingPath, setSeletedTool, nodes, edges, stations, dispatch]);
+  }, [cyInstance, layouts, selectedLayoutId, selectedTool, drawingPath, setSeletedTool, metaInformation, nodes, edges, stations, theme, lastNode,dispatch]);
 
   return (
     <CyContext.Provider value={{ cyInstance, cyRef }}>

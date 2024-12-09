@@ -16,12 +16,11 @@ const PropertiesSidebar = () => {
   const selectedElementId = useSelector((state) => state.user.selectedElement.elementId);
   const selectedElementType = useSelector((state) => state.user.selectedElement.elementType);
 
-  const layouts = useSelector((state) => state.global.layouts);
   const layoutId = useSelector((state) => state.user.selectedLayoutId);
   const nodes = useSelector((state) => state.global.nodes);
   const edges = useSelector((state) => state.global.edges);
 
-  const selectedElement = nodes[selectedElementId] || edges[selectedElementId];
+    const selectedElement = nodes[selectedElementId] || edges[selectedElementId];
 
   const handleElementUpdate = (id, newData) => {
     console.trace('Element updated: ', id, newData);
